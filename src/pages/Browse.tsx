@@ -35,6 +35,8 @@ export default function Browse() {
     return result;
   }, [allProducts, selectedBrand, searchQuery]);
 
+  if (!country || !city) return <Navigate to="/" replace />;
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}

@@ -13,11 +13,9 @@ export default function Browse() {
   const selectedCategory = searchParams.get('categoria') as Category | null;
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
 
-  if (!country || !city) return <Navigate to="/" replace />;
-
   const allProducts = useMemo(
-    () => getProductsForLocation(country.code, city.id, selectedCategory || undefined),
-    [country.code, city.id, selectedCategory]
+    () => country && city ? getProductsForLocation(country.code, city.id, selectedCategory || undefined) : [],
+    [country?.code, city?.id, selectedCategory]
   );
 
   const brands = useMemo(() => {

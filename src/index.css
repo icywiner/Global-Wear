@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,18 +7,18 @@
 :root {
   --background: 0 0% 98%;
   --foreground: 220 15% 10%;
-  --primary: 220 80% 50%;
+  --primary: 160 60% 38%;
   --primary-foreground: 0 0% 100%;
   --secondary: 220 10% 94%;
   --secondary-foreground: 220 15% 20%;
   --muted: 220 10% 96%;
   --muted-foreground: 220 10% 45%;
-  --accent: 160 60% 45%;
+  --accent: 160 60% 38%;
   --accent-foreground: 0 0% 100%;
   --card: 0 0% 100%;
   --card-foreground: 220 15% 10%;
   --border: 220 10% 90%;
-  --ring: 220 80% 50%;
+  --ring: 160 60% 38%;
   --radius: 0.75rem;
   --success: 145 65% 42%;
   --warning: 38 92% 50%;

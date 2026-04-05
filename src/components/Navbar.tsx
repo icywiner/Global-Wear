@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { MapPin, Globe, ChevronDown, User, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, Globe, ChevronDown, User, LogOut, Compass } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
@@ -8,107 +8,120 @@ import { useState, useRef, useEffect } from 'react';
 export default function Navbar() {
   const { country, city, setCountry, setCity, resetLocation } = useLocation();
   const { user, displayName, signOut, loading } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const countryRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (countryRef.current && !countryRef.current.contains(e.target as Node)) setCountryOpen(false);
       if (userRef.current && !userRef.current.contains(e.target as Node)) setUserMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim() && country && city) {
+      navigate(`/explorar?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <Globe className="w-7 h-7 text-primary" />
-          <span className="font-bold text-xl tracking-tight text-foreground" style={{ fontFamily: 'Space Grotesk' }}>
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Globe className="w-6 h-6 text-primary" />
+          <span className="font-bold text-lg tracking-tight text-foreground" style={{ fontFamily: 'Space Grotesk' }}>
             GlobalWear
           </span>
         </Link>
 
-        <div className="flex items-center gap-3">
-          {country && (
+        {/* Search bar - center */}
+        {country && city && (
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-auto">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Buscar productos, marcas..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full bg-secondary border-none rounded-full pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          </form>
+        )}
+
+        {/* Right side */}
+        <div className="flex items-center gap-2 ml-auto">
+          {/* Explorar link */}
+          {country && city && (
             <Link
               to="/explorar"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+              className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
             >
+              <Compass className="w-4 h-4" />
               Explorar
             </Link>
           )}
 
-          {/* Location selector */}
-          <div className="relative" ref={ref}>
+          {/* Country selector */}
+          <div className="relative" ref={countryRef}>
             <button
-              onClick={() => setOpen(!open)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/80 transition-colors"
+              onClick={() => setCountryOpen(!countryOpen)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/80 transition-colors"
             >
-              <MapPin className="w-4 h-4" />
               {country ? (
-                <span className="hidden sm:inline">
-                  {country.flag} {city ? city.name : country.name}
-                </span>
+                <>
+                  <span>{country.flag}</span>
+                  <span className="hidden sm:inline">{country.name}</span>
+                </>
               ) : (
-                <span className="hidden sm:inline">Ubicación</span>
+                <span className="text-muted-foreground">Seleccionar país</span>
               )}
               <ChevronDown className="w-3 h-3" />
             </button>
 
-            {open && (
-              <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-lg w-64 overflow-hidden">
-                <div className="p-3 border-b border-border">
+            {countryOpen && (
+              <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-xl w-60 overflow-hidden">
+                <div className="px-4 py-3 border-b border-border">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Seleccionar ubicación
+                    Seleccionar país
                   </p>
                 </div>
                 {countries.map(c => (
-                  <div key={c.code}>
-                    <button
-                      onClick={() => {
-                        setCountry(c);
-                        if (country?.code !== c.code) return;
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-accent/10 flex items-center gap-2 transition-colors ${
-                        country?.code === c.code ? 'bg-primary/5 font-semibold text-primary' : 'text-foreground'
-                      }`}
-                    >
-                      <span className="text-lg">{c.flag}</span>
-                      {c.name}
-                    </button>
-                    {country?.code === c.code && (
-                      <div className="pl-10 pb-1">
-                        {c.cities.map(ci => (
-                          <button
-                            key={ci.id}
-                            onClick={() => {
-                              setCity(ci);
-                              setOpen(false);
-                            }}
-                            className={`w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors ${
-                              city?.id === ci.id
-                                ? 'bg-primary text-primary-foreground font-medium'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                            }`}
-                          >
-                            {ci.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <button
+                    key={c.code}
+                    onClick={() => {
+                      setCountry(c);
+                      // Auto-select first city
+                      if (c.cities.length > 0) {
+                        setCity(c.cities[0]);
+                      }
+                      setCountryOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 text-sm hover:bg-accent/10 flex items-center justify-between transition-colors ${
+                      country?.code === c.code ? 'bg-primary/5 font-semibold text-primary' : 'text-foreground'
+                    }`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="text-base">{c.code}</span>
+                      <span>{c.name}</span>
+                    </span>
+                    <span className="text-xs text-muted-foreground">{c.currency}</span>
+                  </button>
                 ))}
                 {country && (
                   <div className="p-2 border-t border-border">
                     <button
-                      onClick={() => {
-                        resetLocation();
-                        setOpen(false);
-                      }}
+                      onClick={() => { resetLocation(); setCountryOpen(false); }}
                       className="w-full text-center text-xs text-muted-foreground hover:text-danger transition-colors py-1"
                     >
                       Cambiar ubicación
@@ -133,16 +146,13 @@ export default function Navbar() {
                   </span>
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-lg w-48 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-xl w-48 overflow-hidden">
                     <div className="px-4 py-3 border-b border-border">
                       <p className="text-sm font-semibold text-foreground truncate">{displayName || 'Usuario'}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                     <button
-                      onClick={() => {
-                        signOut();
-                        setUserMenuOpen(false);
-                      }}
+                      onClick={() => { signOut(); setUserMenuOpen(false); }}
                       className="w-full text-left px-4 py-2.5 text-sm text-danger hover:bg-danger/10 flex items-center gap-2 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />

@@ -1,17 +1,19 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
-import { categories, getProductsForLocation, getAllBrands, type Category } from '@/data/products';
+import { categories, getProductsForLocation, type Category } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import { Search, Filter, X } from 'lucide-react';
 
 export default function Browse() {
   const { country, city } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
+
+  const initialSearch = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
 
   const selectedCategory = searchParams.get('categoria') as Category | null;
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const selectedBrand = searchParams.get('marca') || null;
 
   const allProducts = useMemo(
     () => country && city ? getProductsForLocation(country.code, city.id, selectedCategory || undefined) : [],
@@ -26,8 +28,8 @@ export default function Browse() {
   const filteredProducts = useMemo(() => {
     let result = allProducts;
     if (selectedBrand) result = result.filter(p => p.brand === selectedBrand);
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
+    const q = searchQuery.toLowerCase();
+    if (q) {
       result = result.filter(
         p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
       );
@@ -37,6 +39,19 @@ export default function Browse() {
 
   if (!country || !city) return <Navigate to="/" replace />;
 
+  const setCategory = (cat: Category | null) => {
+    const params = new URLSearchParams(searchParams);
+    if (cat) params.set('categoria', cat); else params.delete('categoria');
+    params.delete('marca');
+    setSearchParams(params);
+  };
+
+  const setBrand = (brand: string | null) => {
+    const params = new URLSearchParams(searchParams);
+    if (brand) params.set('marca', brand); else params.delete('marca');
+    setSearchParams(params);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
@@ -45,7 +60,7 @@ export default function Browse() {
           Productos en {city.name}, {country.name} {country.flag}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Mostrando productos disponibles en tiendas oficiales de tu ciudad
+          Precios de tiendas oficiales verificadas
         </p>
       </div>
 
@@ -63,16 +78,12 @@ export default function Browse() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-8">
-        {/* Categories */}
         <button
-          onClick={() => {
-            searchParams.delete('categoria');
-            setSearchParams(searchParams);
-          }}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          onClick={() => setCategory(null)}
+          className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
             !selectedCategory
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              ? 'bg-foreground text-background border-foreground'
+              : 'bg-card text-foreground border-border hover:border-primary/40'
           }`}
         >
           Todas
@@ -80,19 +91,17 @@ export default function Browse() {
         {categories.map(cat => (
           <button
             key={cat.id}
-            onClick={() => setSearchParams({ categoria: cat.id })}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+            onClick={() => setCategory(selectedCategory === cat.id ? null : cat.id)}
+            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
               selectedCategory === cat.id
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                ? 'bg-foreground text-background border-foreground'
+                : 'bg-card text-foreground border-border hover:border-primary/40'
             }`}
           >
-            <span>{cat.icon}</span>
             {cat.label}
           </button>
         ))}
 
-        {/* Brand filter */}
         {brands.length > 1 && (
           <>
             <div className="w-px h-8 bg-border mx-1 self-center" />
@@ -102,11 +111,11 @@ export default function Browse() {
             {brands.map(b => (
               <button
                 key={b}
-                onClick={() => setSelectedBrand(selectedBrand === b ? null : b)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                onClick={() => setBrand(selectedBrand === b ? null : b)}
+                className={`px-3 py-2 rounded-full text-xs font-medium border transition-colors ${
                   selectedBrand === b
-                    ? 'bg-foreground text-background'
-                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-muted text-muted-foreground border-transparent hover:text-foreground'
                 }`}
               >
                 {b}
@@ -117,7 +126,7 @@ export default function Browse() {
 
         {selectedBrand && (
           <button
-            onClick={() => setSelectedBrand(null)}
+            onClick={() => setBrand(null)}
             className="px-2 py-2 text-xs text-muted-foreground hover:text-danger flex items-center gap-1"
           >
             <X className="w-3 h-3" /> Limpiar

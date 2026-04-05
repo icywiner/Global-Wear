@@ -1,17 +1,22 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Globe, ChevronDown } from 'lucide-react';
+import { MapPin, Globe, ChevronDown, User, LogOut } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
+import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
 import { useState, useRef, useEffect } from 'react';
 
 export default function Navbar() {
   const { country, city, setCountry, setCity, resetLocation } = useLocation();
+  const { user, displayName, signOut, loading } = useAuth();
   const [open, setOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -27,16 +32,17 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {country && (
             <Link
               to="/explorar"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
             >
               Explorar
             </Link>
           )}
 
+          {/* Location selector */}
           <div className="relative" ref={ref}>
             <button
               onClick={() => setOpen(!open)}
@@ -44,11 +50,11 @@ export default function Navbar() {
             >
               <MapPin className="w-4 h-4" />
               {country ? (
-                <span>
+                <span className="hidden sm:inline">
                   {country.flag} {city ? city.name : country.name}
                 </span>
               ) : (
-                <span>Elegir ubicación</span>
+                <span className="hidden sm:inline">Ubicación</span>
               )}
               <ChevronDown className="w-3 h-3" />
             </button>
@@ -112,6 +118,49 @@ export default function Navbar() {
               </div>
             )}
           </div>
+
+          {/* Auth */}
+          {!loading && (
+            user ? (
+              <div className="relative" ref={userRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  <span className="hidden sm:inline max-w-[100px] truncate">
+                    {displayName || 'Mi cuenta'}
+                  </span>
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-lg w-48 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border">
+                      <p className="text-sm font-semibold text-foreground truncate">{displayName || 'Usuario'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        setUserMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-danger hover:bg-danger/10 flex items-center gap-2 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">Ingresar</span>
+              </Link>
+            )
+          )}
         </div>
       </div>
     </nav>

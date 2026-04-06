@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import AIChatWidget from './components/AIChatWidget';
 import Home from './pages/Home';
 import Browse from './pages/Browse';
 import ProductDetail from './pages/ProductDetail';
@@ -21,6 +22,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <AIChatWidget />
     </div>
   );
 }

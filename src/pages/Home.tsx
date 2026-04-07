@@ -1,9 +1,8 @@
 import { useLocation } from '@/context/LocationContext';
 import LocationPicker from '@/components/home/LocationPicker';
 import HeroSection from '@/components/home/HeroSection';
-import StatsBar from '@/components/home/StatsBar';
-import ProductCarousel from '@/components/home/ProductCarousel';
-import BrandsGrid from '@/components/home/BrandsGrid';
+import BrandsSection from '@/components/home/BrandsSection';
+import CategoriesSection from '@/components/home/CategoriesSection';
 import CountriesSection from '@/components/home/CountriesSection';
 import ProductsGrid from '@/components/home/ProductsGrid';
 
@@ -15,11 +14,10 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className="bg-background">
       <HeroSection />
-      <StatsBar />
-      <ProductCarousel />
-      <BrandsGrid />
+      <BrandsSection />
+      <CategoriesSection />
       <CountriesSection />
       <ProductsGrid />
     </div>

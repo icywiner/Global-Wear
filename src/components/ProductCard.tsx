@@ -12,6 +12,7 @@ interface Props {
 
 export default function ProductCard({ product }: Props) {
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const { country, city } = useLocation();
 
   const localOffers = country && city
@@ -30,53 +31,58 @@ export default function ProductCard({ product }: Props) {
   return (
     <Link
       to={`/producto/${product.id}`}
-      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300"
     >
       {/* Image */}
-      <div className="relative aspect-square bg-secondary/30 overflow-hidden">
+      <div className="relative aspect-square bg-secondary/20 overflow-hidden">
+        {/* Skeleton */}
+        {!imgLoaded && (
+          <div className="absolute inset-0 bg-secondary/40 animate-pulse" />
+        )}
         <img
           src={product.images[0]}
           alt={product.name}
           loading="lazy"
+          onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
-          className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+          className={`w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
         />
 
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {isBestGlobal && (
-            <span className="bg-accent text-accent-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
               Mejor precio
             </span>
           )}
         </div>
 
-        {/* Verified badge */}
+        {/* Verified */}
         <div className="absolute top-2 right-2">
-          <span className="bg-card/90 backdrop-blur-sm text-primary text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+          <span className="bg-card/90 backdrop-blur-sm text-primary text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
             <ShieldCheck className="w-3 h-3" />
           </span>
         </div>
 
         {/* Hover overlay */}
-        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors flex items-end justify-center pb-3 opacity-0 group-hover:opacity-100">
-          <span className="text-xs font-semibold bg-primary text-primary-foreground px-4 py-1.5 rounded-full">
+        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
+          <span className="text-xs font-semibold bg-primary text-primary-foreground px-5 py-2 rounded-full shadow-lg">
             Ver producto
           </span>
         </div>
       </div>
 
       {/* Info */}
-      <div className="p-3">
-        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+      <div className="p-4">
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
           {product.brand}
         </p>
         <h3 className="font-semibold text-foreground text-sm leading-snug mb-2 group-hover:text-primary transition-colors line-clamp-2">
           {product.name}
         </h3>
 
-        <div className="flex items-baseline gap-1.5 mb-1">
-          <span className="text-base font-bold text-foreground">
+        <div className="flex items-baseline gap-1.5 mb-1.5">
+          <span className="text-lg font-bold text-foreground">
             {displayOffer.currencySymbol}{displayOffer.price.toLocaleString()}
           </span>
           {displayOffer.currency !== 'USD' && (

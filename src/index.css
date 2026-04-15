@@ -5,21 +5,21 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 98%;
-  --foreground: 220 15% 10%;
-  --primary: 160 60% 38%;
+  --background: 210 25% 97%;
+  --foreground: 222 24% 11%;
+  --primary: 154 62% 34%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 220 10% 94%;
-  --secondary-foreground: 220 15% 20%;
-  --muted: 220 10% 96%;
-  --muted-foreground: 220 10% 45%;
-  --accent: 160 60% 38%;
+  --secondary: 210 24% 93%;
+  --secondary-foreground: 222 24% 14%;
+  --muted: 210 24% 95%;
+  --muted-foreground: 220 10% 40%;
+  --accent: 154 62% 34%;
   --accent-foreground: 0 0% 100%;
   --card: 0 0% 100%;
-  --card-foreground: 220 15% 10%;
-  --border: 220 10% 90%;
-  --ring: 160 60% 38%;
-  --radius: 0.75rem;
+  --card-foreground: 222 24% 12%;
+  --border: 215 18% 86%;
+  --ring: 154 62% 34%;
+  --radius: 0.95rem;
   --success: 145 65% 42%;
   --warning: 38 92% 50%;
   --danger: 0 72% 51%;
@@ -36,10 +36,33 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(circle at 90% -10%, rgba(30, 170, 112, 0.16), transparent 32%),
+    radial-gradient(circle at 0% 100%, rgba(14, 116, 144, 0.08), transparent 34%);
 }
 
 h1, h2, h3, h4 {
   font-family: 'Space Grotesk', sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a, button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.glass-card {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.76));
+  backdrop-filter: blur(8px);
+}
+
+.bg-grid-soft {
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 38px 38px;
 }
 
 .scrollbar-hide {
@@ -48,4 +71,40 @@ h1, h2, h3, h4 {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+.map-pin-wrapper,
+.map-cluster-wrapper {
+  background: transparent;
+  border: 0;
+}
+
+.map-pin {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  background: linear-gradient(160deg, rgba(18, 154, 108, 0.96), rgba(11, 117, 84, 0.96));
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.22);
+}
+
+.map-pin-active {
+  background: linear-gradient(160deg, rgba(12, 154, 245, 0.98), rgba(4, 106, 184, 0.98));
+  transform: scale(1.15);
+}
+
+.map-cluster {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  background: linear-gradient(160deg, rgba(20, 92, 170, 0.95), rgba(12, 65, 124, 0.95));
+  box-shadow: 0 10px 16px rgba(15, 23, 42, 0.24);
 }

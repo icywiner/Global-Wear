@@ -42,7 +42,7 @@ export default function Register() {
   if (success) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4">
-        <div className="max-w-sm w-full text-center">
+        <div className="max-w-sm w-full text-center rounded-3xl border border-border bg-card/85 backdrop-blur-sm p-7 shadow-lg">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-success/10 mb-4">
             <CheckCircle className="w-7 h-7 text-success" />
           </div>
@@ -64,8 +64,8 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="max-w-sm w-full">
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">
+      <div className="max-w-md w-full rounded-3xl border border-border bg-card/85 backdrop-blur-sm p-6 md:p-8 shadow-lg">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
             <UserPlus className="w-7 h-7 text-primary" />
@@ -94,7 +94,7 @@ export default function Register() {
               onChange={e => setName(e.target.value)}
               placeholder="Tu nombre"
               maxLength={100}
-              className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+              className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
             />
           </div>
 
@@ -106,7 +106,7 @@ export default function Register() {
               onChange={e => setEmail(e.target.value)}
               placeholder="tu@email.com"
               maxLength={255}
-              className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+              className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
             />
           </div>
 
@@ -118,7 +118,7 @@ export default function Register() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full bg-card border border-border rounded-xl px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+                className="w-full bg-white border border-border rounded-xl px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
               />
               <button
                 type="button"

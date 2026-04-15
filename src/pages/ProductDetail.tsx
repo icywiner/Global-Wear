@@ -2,13 +2,13 @@ import { useState, useMemo } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
 import {
-  products,
-  offers,
-  getOffersForProduct,
-  getBestOffer,
+  catalogOffers,
+  catalogProducts,
+  getCatalogOffersForProduct,
+  getCatalogBestOffer,
   toUSD,
-  type StoreOffer,
-} from '@/data/products';
+  type CatalogOffer,
+} from '@/data/catalog';
 import { countries } from '@/data/locations';
 import {
   ExternalLink,
@@ -26,18 +26,19 @@ export default function ProductDetail() {
   const [imgError, setImgError] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
 
-  const product = products.find(p => p.id === id);
+  const product = catalogProducts.find(p => p.id === id);
   if (!product) return <Navigate to="/" replace />;
 
   const localOffers = country && city
-    ? getOffersForProduct(product.id, country.code, city.id)
+    ? getCatalogOffersForProduct(product.id, country.code, city.id)
+      .filter(o => Boolean(o.price) && Boolean(o.store) && Boolean(o.url))
     : [];
 
-  const allOffers = offers
-    .filter(o => o.productId === product.id && o.inStock)
+  const allOffers = catalogOffers
+    .filter(o => o.productId === product.id && o.inStock && Boolean(o.price) && Boolean(o.store) && Boolean(o.url))
     .sort((a, b) => toUSD(a.price, a.currency) - toUSD(b.price, b.currency));
 
-  const bestGlobal = getBestOffer(product.id);
+  const bestGlobal = getCatalogBestOffer(product.id);
 
   const categoryIcons: Record<string, string> = {
     zapatillas: '👟', buzos: '🧥', camperas: '🧥', jeans: '👖', remeras: '👕',
@@ -51,7 +52,7 @@ export default function ProductDetail() {
     countries.find(c => c.code === code)?.flag || '';
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <Link
         to="/explorar"
@@ -60,10 +61,10 @@ export default function ProductDetail() {
         <ArrowLeft className="w-4 h-4" /> Volver a productos
       </Link>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-12">
+      <div className="grid md:grid-cols-2 gap-8 mb-12 bg-card border border-border rounded-3xl p-5 md:p-8 shadow-sm">
         {/* Images */}
         <div>
-          <div className="bg-secondary/30 rounded-2xl aspect-square overflow-hidden mb-3">
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl aspect-square overflow-hidden mb-3">
             {!imgError && product.images[selectedImg] ? (
               <img
                 src={product.images[selectedImg]}
@@ -203,7 +204,7 @@ function OfferRow({
   cityName,
   flag,
 }: {
-  offer: StoreOffer;
+  offer: CatalogOffer;
   isBest: boolean;
   countryName: string;
   cityName: string;

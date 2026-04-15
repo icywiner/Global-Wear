@@ -28,8 +28,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="max-w-sm w-full">
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">
+      <div className="max-w-md w-full rounded-3xl border border-border bg-card/85 backdrop-blur-sm p-6 md:p-8 shadow-lg">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
             <LogIn className="w-7 h-7 text-primary" />
@@ -38,7 +38,7 @@ export default function Login() {
             Iniciar sesión
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Ingresá a tu cuenta de GlobalWear
+            Accede a tu cuenta de GlobalWear Compare
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export default function Login() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="tu@email.com"
-              className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+              className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
             />
           </div>
 
@@ -69,7 +69,7 @@ export default function Login() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••"
-                className="w-full bg-card border border-border rounded-xl px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+                className="w-full bg-white border border-border rounded-xl px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
               />
               <button
                 type="button"

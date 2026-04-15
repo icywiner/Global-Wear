@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import type { Product } from '@/data/products';
 import { getOffersForProduct, getBestOffer, toUSD } from '@/data/products';
 import { useLocation } from '@/context/LocationContext';
 import { countries } from '@/data/locations';
+import SmartImage from '@/components/ui/SmartImage';
 
 interface Props {
   product: Product;
@@ -12,18 +13,22 @@ interface Props {
 
 export default function ProductCard({ product }: Props) {
   const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
   const { country, city } = useLocation();
 
   const localOffers = country && city
     ? getOffersForProduct(product.id, country.code, city.id)
     : [];
-  const bestOffer = getBestOffer(product.id);
-  const displayOffer = localOffers[0] || bestOffer;
+  const validLocalOffers = localOffers.filter((o) => Boolean(o.price) && Boolean(o.store) && Boolean(o.url));
+  const displayOffer = validLocalOffers[0] || getBestOffer(product.id);
 
-  if (imgError || !displayOffer) return null;
+  const hasRequiredData = Boolean(
+    product.images?.[0] &&
+    displayOffer?.price &&
+    displayOffer?.store &&
+    displayOffer?.url
+  );
 
-  const isBestGlobal = bestOffer && displayOffer && toUSD(displayOffer.price, displayOffer.currency) <= toUSD(bestOffer.price, bestOffer.currency) + 0.01;
+  if (imgError || !displayOffer || !hasRequiredData) return null;
 
   const getCityName = (countryCode: string, cityId: string) =>
     countries.find(c => c.code === countryCode)?.cities.find(ci => ci.id === cityId)?.name || cityId;
@@ -31,38 +36,17 @@ export default function ProductCard({ product }: Props) {
   return (
     <Link
       to={`/producto/${product.id}`}
-      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300"
+      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/25 transition-all duration-300"
     >
       {/* Image */}
-      <div className="relative aspect-square bg-secondary/20 overflow-hidden">
-        {/* Skeleton */}
-        {!imgLoaded && (
-          <div className="absolute inset-0 bg-secondary/40 animate-pulse" />
-        )}
-        <img
-          src={product.images[0]}
+      <div className="relative aspect-square bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+        <SmartImage
+          sources={product.images}
           alt={product.name}
-          loading="lazy"
-          onLoad={() => setImgLoaded(true)}
-          onError={() => setImgError(true)}
-          className={`w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onAllFailed={() => setImgError(true)}
+          imgClassName="w-full h-full object-contain p-4 group-hover:scale-105"
+          skeletonClassName="absolute inset-0 bg-secondary/40 animate-pulse"
         />
-
-        {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          {isBestGlobal && (
-            <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-              Mejor precio
-            </span>
-          )}
-        </div>
-
-        {/* Verified */}
-        <div className="absolute top-2 right-2">
-          <span className="bg-card/90 backdrop-blur-sm text-primary text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-            <ShieldCheck className="w-3 h-3" />
-          </span>
-        </div>
 
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
@@ -96,6 +80,12 @@ export default function ProductCard({ product }: Props) {
           <MapPin className="w-2.5 h-2.5" />
           {displayOffer.store} · {getCityName(displayOffer.countryCode, displayOffer.cityId)}
         </p>
+
+        <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="inline-flex items-center justify-center text-xs font-semibold rounded-lg bg-foreground text-background px-3 py-1.5">
+            Comprar ahora
+          </span>
+        </div>
       </div>
     </Link>
   );

@@ -1,9 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Globe, ChevronDown, User, LogOut, Compass } from 'lucide-react';
+import { Search, Globe, ChevronDown, User, LogOut, Compass, Sparkles } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
-import { useState, useRef, useEffect } from 'react';
+import { catalogProducts } from '@/data/catalog';
+import { useState, useRef, useEffect, useMemo } from 'react';
 
 export default function Navbar() {
   const { country, city, setCountry, setCity, resetLocation } = useLocation();
@@ -11,14 +12,25 @@ export default function Navbar() {
   const [countryOpen, setCountryOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  const searchSuggestions = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return catalogProducts
+      .filter((p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (countryRef.current && !countryRef.current.contains(e.target as Node)) setCountryOpen(false);
       if (userRef.current && !userRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -26,51 +38,85 @@ export default function Navbar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim() && country && city) {
+    if (searchQuery.trim()) {
       navigate(`/explorar?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+      setSearchOpen(false);
     }
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4">
+    <nav className="sticky top-0 z-50 border-b border-border/60 bg-card/85 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <Globe className="w-6 h-6 text-primary" />
-          <span className="font-bold text-lg tracking-tight text-foreground" style={{ fontFamily: 'Space Grotesk' }}>
-            GlobalWear
-          </span>
+        <Link to="/" className="flex items-center gap-2.5 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <Globe className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="font-bold text-lg tracking-tight text-foreground" style={{ fontFamily: 'Space Grotesk' }}>
+              GlobalWear
+            </span>
+            <p className="text-[10px] text-muted-foreground -mt-0.5">Compare</p>
+          </div>
         </Link>
 
         {/* Search bar - center */}
-        {country && city && (
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-auto">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar productos, marcas..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-secondary border-none rounded-full pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+        <form onSubmit={handleSearch} ref={searchRef} className="hidden md:flex flex-1 max-w-xl mx-auto relative">
+          <div className="relative w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Buscar por producto o marca"
+              value={searchQuery}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setSearchOpen(true);
+              }}
+              onFocus={() => setSearchOpen(true)}
+              className="w-full bg-secondary/70 border border-border/80 rounded-full pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
+            />
+          </div>
+
+          {searchOpen && searchSuggestions.length > 0 && (
+            <div className="absolute top-full mt-2 left-0 right-0 bg-card border border-border rounded-2xl shadow-lg overflow-hidden z-50">
+              {searchSuggestions.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    navigate(`/producto/${item.id}`);
+                    setSearchQuery('');
+                    setSearchOpen(false);
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-secondary/70 transition-colors border-b border-border/60 last:border-0"
+                >
+                  <p className="text-sm font-semibold text-foreground">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">{item.brand}</p>
+                </button>
+              ))}
             </div>
-          </form>
-        )}
+          )}
+        </form>
 
         {/* Right side */}
         <div className="flex items-center gap-2 ml-auto">
           {/* Explorar link */}
-          {country && city && (
-            <Link
-              to="/explorar"
-              className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
-            >
-              <Compass className="w-4 h-4" />
-              Explorar
-            </Link>
-          )}
+          <Link
+            to="/explorar"
+            className="hidden lg:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+          >
+            <Compass className="w-4 h-4" />
+            Explorar
+          </Link>
+
+          <Link
+            to="/"
+            className="hidden lg:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            Inicio
+          </Link>
 
           {/* Country selector */}
           <div className="relative" ref={countryRef}>
@@ -81,7 +127,7 @@ export default function Navbar() {
               {country ? (
                 <>
                   <span>{country.flag}</span>
-                  <span className="hidden sm:inline">{country.name}</span>
+                  <span className="hidden sm:inline">{country.name}{city ? ` · ${city.name}` : ''}</span>
                 </>
               ) : (
                 <span className="text-muted-foreground">Seleccionar país</span>
@@ -90,7 +136,7 @@ export default function Navbar() {
             </button>
 
             {countryOpen && (
-              <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-xl w-60 overflow-hidden">
+              <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-xl shadow-xl w-64 overflow-hidden">
                 <div className="px-4 py-3 border-b border-border">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Seleccionar país
@@ -112,7 +158,7 @@ export default function Navbar() {
                     }`}
                   >
                     <span className="flex items-center gap-3">
-                      <span className="text-base">{c.code}</span>
+                      <span className="text-base">{c.flag}</span>
                       <span>{c.name}</span>
                     </span>
                     <span className="text-xs text-muted-foreground">{c.currency}</span>

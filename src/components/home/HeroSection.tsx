@@ -56,14 +56,14 @@ export default function HeroSection() {
           <div className="relative text-center mb-8">
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary bg-primary/10 px-4 py-2 rounded-full mb-5">
               <Sparkles className="w-3.5 h-3.5" />
-              Datos de tiendas oficiales verificadas
+              Tiendas oficiales · Precios actualizados
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 leading-tight tracking-tight">
-              Compara precios reales de
-              <span className="block text-primary">ropa en todo el mundo</span>
+              La misma marca.
+              <span className="block text-primary">El precio que conviene.</span>
             </h1>
             <p className="text-sm md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Descubri donde conviene comprar Nike, Adidas, Levi's y mas. Misma marca, distintas ciudades, mejor decision.
+              Nike, Adidas, Levi's y mas — comparados en tiempo real. Paga lo justo.
             </p>
           </div>
 
@@ -152,15 +152,15 @@ export default function HeroSection() {
             <div className="rounded-2xl border border-border bg-white/80 p-4 flex items-start gap-3">
               <ShieldCheck className="w-4 h-4 text-primary mt-0.5" />
               <div>
-                <p className="font-semibold text-foreground text-sm">Fuentes verificadas</p>
-                <p className="text-xs text-muted-foreground">Solo tiendas oficiales y enlaces reales</p>
+                <p className="font-semibold text-foreground text-sm">Cobertura global</p>
+                <p className="text-xs text-muted-foreground">+40 países con precios de tiendas oficiales</p>
               </div>
             </div>
             <div className="rounded-2xl border border-border bg-white/80 p-4 flex items-start gap-3">
               <TrendingUp className="w-4 h-4 text-primary mt-0.5" />
               <div>
-                <p className="font-semibold text-foreground text-sm">Comparacion inteligente</p>
-                <p className="text-xs text-muted-foreground">Mismo producto, distintas ciudades y monedas</p>
+                <p className="font-semibold text-foreground text-sm">Ahorro real</p>
+                <p className="text-xs text-muted-foreground">Hasta 40% menos segun donde compras</p>
               </div>
             </div>
           </div>

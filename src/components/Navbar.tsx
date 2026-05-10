@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Globe, ChevronDown, User, LogOut, Compass, Sparkles } from 'lucide-react';
+import { Search, Globe, ChevronDown, User, LogOut, Compass, ArrowLeft } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
@@ -110,16 +110,37 @@ export default function Navbar() {
             Explorar
           </Link>
 
-          <Link
-            to="/"
-            className="hidden lg:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
-          >
-            <Sparkles className="w-4 h-4" />
-            Inicio
-          </Link>
+          {/* Back to Location Button */}
+          {country && city && (
+            <button
+              onClick={() => {
+                resetLocation();
+                navigate('/');
+              }}
+              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-secondary/50 text-foreground text-sm font-medium transition-colors group"
+              title="Cambiar ubicación"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              <span className="text-xs">{city.name}, {country.name}</span>
+            </button>
+          )}
 
-          {/* Country selector */}
-          <div className="relative" ref={countryRef}>
+          {/* Mobile location icon only */}
+          {country && city && (
+            <button
+              onClick={() => {
+                resetLocation();
+                navigate('/');
+              }}
+              className="flex sm:hidden items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-secondary/50 text-foreground text-sm font-medium transition-colors"
+              title="Cambiar ubicación"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Country selector - kept for backwards compatibility but can be removed */}
+          <div className="relative hidden" ref={countryRef}>
             <button
               onClick={() => setCountryOpen(!countryOpen)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/80 transition-colors"

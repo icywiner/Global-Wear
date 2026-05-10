@@ -10,6 +10,7 @@ interface SmartImageProps {
   skeletonClassName?: string;
   onAllFailed?: () => void;
   loading?: 'lazy' | 'eager';
+  fallbackSrc?: string;
 }
 
 export default function SmartImage({
@@ -19,10 +20,12 @@ export default function SmartImage({
   skeletonClassName,
   onAllFailed,
   loading = 'lazy',
+  fallbackSrc,
 }: SmartImageProps) {
   const [status, setStatus] = useState<SmartImageStatus>('checking');
   const [source, setSource] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [usingFallback, setUsingFallback] = useState(false);
 
   const normalizedSources = useMemo(
     () => sources.map((item) => item.trim()).filter(Boolean),
@@ -34,14 +37,21 @@ export default function SmartImage({
 
     const run = async () => {
       if (normalizedSources.length === 0) {
-        setStatus('failed');
-        onAllFailed?.();
+        if (fallbackSrc) {
+          setSource(fallbackSrc);
+          setUsingFallback(true);
+          setStatus('ready');
+        } else {
+          setStatus('failed');
+          onAllFailed?.();
+        }
         return;
       }
 
       setStatus('checking');
       setSource(null);
       setIsLoaded(false);
+      setUsingFallback(false);
 
       const validSource = await resolveValidImageSource(normalizedSources);
 
@@ -49,6 +59,13 @@ export default function SmartImage({
 
       if (validSource) {
         setSource(validSource);
+        setStatus('ready');
+        return;
+      }
+
+      if (fallbackSrc) {
+        setSource(fallbackSrc);
+        setUsingFallback(true);
         setStatus('ready');
         return;
       }
@@ -62,7 +79,7 @@ export default function SmartImage({
     return () => {
       cancelled = true;
     };
-  }, [normalizedSources]);
+  }, [fallbackSrc, normalizedSources, onAllFailed]);
 
   if (status === 'failed' || !source) {
     return null;
@@ -80,6 +97,13 @@ export default function SmartImage({
         className={`${imgClassName || ''} transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`.trim()}
         onLoad={() => setIsLoaded(true)}
         onError={() => {
+          if (!usingFallback && fallbackSrc) {
+            setSource(fallbackSrc);
+            setUsingFallback(true);
+            setIsLoaded(false);
+            return;
+          }
+
           setStatus('failed');
           onAllFailed?.();
         }}

@@ -3,6 +3,7 @@ import { FixedSizeList as List, type ListChildComponentProps } from 'react-windo
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
+import { useBrand } from '@/context/BrandContext';
 import {
   categories,
   getCatalogBestOffer,
@@ -49,6 +50,7 @@ function ProductRow({ index, style, data }: ListChildComponentProps<RowData>) {
 
 export default function ProductsGrid() {
   const { country, city } = useLocation();
+  const { selectedBrand: contextBrand } = useBrand();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedBrand, setSelectedBrand] = useState('all');
@@ -60,6 +62,17 @@ export default function ProductsGrid() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   const stats = useMemo(() => getCatalogStats(), []);
+  const categoryLabelMap = useMemo(
+    () => new Map(categories.map((category) => [category.id, category.label])),
+    []
+  );
+
+  const normalize = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
 
   useEffect(() => {
     const initialQuery = (searchParams.get('q') || '').trim();
@@ -75,8 +88,16 @@ export default function ProductsGrid() {
   }, []);
 
   const availableProducts = useMemo(
-    () => (country && city ? getCatalogProductsForLocation(country.code, city.id) : []),
-    [country?.code, city?.id]
+    () => {
+      if (!country || !city) return [];
+      const allProducts = getCatalogProductsForLocation(country.code, city.id);
+      // Filter by selected brand from context
+      if (contextBrand) {
+        return allProducts.filter((p) => p.brand === contextBrand);
+      }
+      return allProducts;
+    },
+    [country?.code, city?.id, contextBrand]
   );
 
   const suggestionList = useMemo(
@@ -93,15 +114,17 @@ export default function ProductsGrid() {
   }, [availableProducts]);
 
   const renderedItems = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = normalize(query);
+    const hasQuery = normalizedQuery.length > 0;
 
     const items: RenderItem[] = availableProducts
       .filter((product) => {
         if (hiddenProductIds.has(product.id)) return false;
-        if (selectedCategory && product.category !== selectedCategory) return false;
+        if (selectedCategory && !hasQuery && product.category !== selectedCategory) return false;
         if (selectedBrand !== 'all' && product.brand !== selectedBrand) return false;
-        if (normalizedQuery) {
-          const match = `${product.name} ${product.brand}`.toLowerCase().includes(normalizedQuery);
+        if (hasQuery) {
+          const categoryLabel = categoryLabelMap.get(product.category) || product.category;
+          const match = normalize(`${product.name} ${product.brand} ${product.category} ${categoryLabel}`).includes(normalizedQuery);
           if (!match) return false;
         }
         return true;
@@ -139,6 +162,7 @@ export default function ProductsGrid() {
     hiddenProductIds,
     priceRange,
     query,
+    categoryLabelMap,
     selectedBrand,
     selectedCategory,
     selectedStoreKey,
@@ -207,7 +231,7 @@ export default function ProductsGrid() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Paso 3 de 4</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Categoria y resultados</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Resultados y comparacion</h2>
               <p className="text-sm text-muted-foreground mt-1">
                 {country.flag} {country.name} · {city.name} · {stats.products} productos validados · {stats.stores} tiendas
               </p>
@@ -217,39 +241,9 @@ export default function ProductsGrid() {
               <p className="text-xs text-muted-foreground">Selecciona una card o pin para sincronizar lista y mapa.</p>
             </div>
           </div>
-
-          <div className="mt-5 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => {
-                  setSelectedCategory((current) => (current === category.id ? null : category.id));
-                  setSelectedStoreKey(null);
-                  setSelectedProductId(null);
-                }}
-                className={`shrink-0 rounded-full border px-5 py-2 text-sm font-medium transition-colors ${
-                  selectedCategory === category.id
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-foreground hover:border-primary/40'
-                }`}
-              >
-                {category.icon} {category.label}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {!selectedCategory ? (
-          <div className="rounded-3xl border border-border bg-card p-12 text-center">
-            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground mb-2">Flujo obligatorio</p>
-            <h3 className="text-2xl font-semibold text-foreground mb-2">Primero elige una categoria</h3>
-            <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-              Para mantener una experiencia tipo Trivago, primero definimos categoria y luego mostramos resultados en vista
-              dividida con mapa, filtros, busqueda y ordenamiento.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start">
             <div className="rounded-3xl border border-border bg-card p-4 md:p-5">
               <div className="mb-4 grid gap-3">
                 <div className="relative">
@@ -258,7 +252,7 @@ export default function ProductsGrid() {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     list="catalog-search-suggestions"
-                    placeholder="Buscar por producto o marca..."
+                    placeholder="Buscar por producto, marca o categoria..."
                     className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm outline-none focus:border-primary"
                   />
                   <datalist id="catalog-search-suggestions">
@@ -329,17 +323,31 @@ export default function ProductsGrid() {
                   <p className="text-muted-foreground">
                     {renderedItems.length} productos listos para comparar · {storePoints.length} tiendas en mapa
                   </p>
-                  {selectedStoreKey && (
-                    <button
-                      onClick={() => {
-                        setSelectedStoreKey(null);
-                        setSelectedProductId(null);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/45"
-                    >
-                      <X className="w-3 h-3" /> Limpiar tienda seleccionada
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {selectedCategory && query.trim().length === 0 && (
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(null);
+                          setSelectedStoreKey(null);
+                          setSelectedProductId(null);
+                        }}
+                        className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/45"
+                      >
+                        <X className="w-3 h-3" /> {categoryLabelMap.get(selectedCategory) || selectedCategory}
+                      </button>
+                    )}
+                    {selectedStoreKey && (
+                      <button
+                        onClick={() => {
+                          setSelectedStoreKey(null);
+                          setSelectedProductId(null);
+                        }}
+                        className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/45"
+                      >
+                        <X className="w-3 h-3" /> Limpiar tienda seleccionada
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -385,8 +393,7 @@ export default function ProductsGrid() {
                 />
               </Suspense>
             </div>
-          </div>
-        )}
+        </div>
       </div>
     </section>
   );

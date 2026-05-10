@@ -6,6 +6,7 @@ import { getOffersForProduct, getBestOffer, toUSD } from '@/data/products';
 import { useLocation } from '@/context/LocationContext';
 import { countries } from '@/data/locations';
 import SmartImage from '@/components/ui/SmartImage';
+import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
 
 interface Props {
   product: Product;
@@ -44,6 +45,7 @@ export default function ProductCard({ product }: Props) {
           sources={product.images}
           alt={product.name}
           onAllFailed={() => setImgError(true)}
+          fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
           imgClassName="w-full h-full object-contain p-4 group-hover:scale-105"
           skeletonClassName="absolute inset-0 bg-secondary/40 animate-pulse"
         />

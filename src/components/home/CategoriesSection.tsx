@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import type { Category } from '@/data/products';
 import SmartImage from '@/components/ui/SmartImage';
+import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
+import { getCatalogProductsForLocation } from '@/data/catalog';
+import { useLocation } from '@/context/LocationContext';
+import { useBrand } from '@/context/BrandContext';
 
 const categoryCards: Array<{
   id: Category;
@@ -67,20 +71,49 @@ const categoryCards: Array<{
 
 export default function CategoriesSection() {
   const navigate = useNavigate();
+  const { country, city } = useLocation();
+  const { selectedBrand } = useBrand();
+
+  // Filter categories based on selected brand and location
+  const availableCategories = useMemo(() => {
+    if (!country || !city || !selectedBrand) return categoryCards;
+
+    const catalogProducts = getCatalogProductsForLocation(country.code, city.id);
+    const brandProducts = catalogProducts.filter((p) => p.brand === selectedBrand);
+    
+    // Get unique categories that have products for this brand
+    const availableCategoryIds = new Set(brandProducts.map((p) => p.category));
+    
+    return categoryCards.filter((cat) => availableCategoryIds.has(cat.id));
+  }, [country, city, selectedBrand]);
 
   return (
     <section className="py-9 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground">Categorias destacadas</h2>
-          <p className="text-sm text-muted-foreground mt-1">Explora por estilo con visuales reales, carga validada y transiciones suaves.</p>
+          <h2 className="text-xl md:text-2xl font-bold text-foreground">
+            Paso 3 de 4: Categorías {selectedBrand && `- ${selectedBrand}`}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">Selecciona la categoría para ver los productos disponibles.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {categoryCards.map((cat, i) => (
-            <CategoryCard key={cat.id} card={cat} index={i} onClick={() => navigate(`/explorar?categoria=${cat.id}`)} />
-          ))}
-        </div>
+        {availableCategories.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {availableCategories.map((cat, i) => (
+              <CategoryCard 
+                key={cat.id} 
+                card={cat} 
+                index={i} 
+                onClick={() => navigate(`/explorar?categoria=${cat.id}`)} 
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <p className="text-base font-semibold text-foreground mb-1">No hay categorías disponibles</p>
+            <p className="text-sm text-muted-foreground">Esta marca no tiene productos en categorías para tu ciudad.</p>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -95,10 +128,6 @@ function CategoryCard({
   index: number;
   onClick: () => void;
 }) {
-  const [hidden, setHidden] = useState(false);
-
-  if (hidden) return null;
-
   return (
     <motion.button
       initial={{ opacity: 0, y: 14 }}
@@ -124,7 +153,7 @@ function CategoryCard({
           <SmartImage
             sources={card.images}
             alt={card.title}
-            onAllFailed={() => setHidden(true)}
+            fallbackSrc={buildPremiumPlaceholder(card.title)}
             imgClassName="absolute right-0 bottom-0 h-full w-full object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,0.32)] group-hover:scale-105"
             skeletonClassName="absolute inset-0 rounded-2xl bg-white/20 animate-pulse"
           />

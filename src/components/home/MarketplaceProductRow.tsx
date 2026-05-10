@@ -2,6 +2,7 @@ import { ExternalLink, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { CatalogOffer, CatalogProduct } from '@/data/catalog';
 import SmartImage from '@/components/ui/SmartImage';
+import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
 
 interface MarketplaceProductRowProps {
   product: CatalogProduct;
@@ -31,7 +32,8 @@ export default function MarketplaceProductRow({
             sources={product.images}
             alt={product.name}
             onAllFailed={() => onImageError(product.id)}
-            imgClassName="h-full w-full object-cover"
+            fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
+            imgClassName="h-full w-full object-contain p-2"
             skeletonClassName="absolute inset-0 animate-pulse bg-gradient-to-br from-secondary to-secondary/60"
           />
         </div>

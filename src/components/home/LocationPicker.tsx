@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, ArrowRight, CheckCircle2, ArrowLeft, Globe2 } from 'lucide-react';
+import { MapPin, ArrowRight, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { countries } from '@/data/locations';
 import SmartImage from '@/components/ui/SmartImage';
@@ -48,10 +48,6 @@ export default function LocationPicker() {
           transition={{ duration: 0.45 }}
           className="max-w-3xl mx-auto text-center text-white mb-8"
         >
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-xs font-medium mb-5">
-            <Globe2 className="w-3.5 h-3.5" />
-            Onboarding de ubicacion
-          </div>
           <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">
             Elegi donde queres comparar precios
           </h1>
@@ -62,28 +58,6 @@ export default function LocationPicker() {
         </motion.div>
 
         <div className="max-w-6xl mx-auto rounded-[28px] border border-white/15 bg-white/10 backdrop-blur-md p-4 md:p-6 shadow-2xl">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2 text-white/80 text-sm">
-              <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${selectedCountry ? 'bg-primary text-white' : 'bg-white/20 text-white'}`}>1</span>
-              Pais
-              <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ml-3 ${selectedCity ? 'bg-primary text-white' : 'bg-white/20 text-white'}`}>2</span>
-              Ciudad
-            </div>
-
-            {selectedCountry && (
-              <button
-                onClick={() => {
-                  setSelectedCountry(null);
-                  setSelectedCity(null);
-                }}
-                className="inline-flex items-center gap-1.5 text-xs text-white/80 hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                Volver a paises
-              </button>
-            )}
-          </div>
-
           <AnimatePresence mode="wait">
             {!selectedCountry ? (
             <motion.div
@@ -132,6 +106,17 @@ export default function LocationPicker() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
             >
+                <button
+                  onClick={() => {
+                    setSelectedCountry(null);
+                    setSelectedCity(null);
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs text-white/80 hover:text-white transition-colors mb-5"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Volver a paises
+                </button>
+
                 <div className="mb-4 text-white/85 text-sm">
                   <span className="font-medium">Pais seleccionado:</span> {activeCountry?.flag} {activeCountry?.name}
                 </div>

@@ -1,9 +1,8 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SmartImage from '@/components/ui/SmartImage';
 import { useLocation } from '@/context/LocationContext';
+import { useBrand } from '@/context/BrandContext';
 import { getCatalogOffersForProduct, getCatalogProductsForLocation } from '@/data/catalog';
 
 const brandLogos: Record<string, string[]> = {
@@ -93,6 +92,7 @@ const featuredOrder = [
 
 export default function BrandsSection() {
   const { country, city } = useLocation();
+  const { selectedBrand, selectBrand } = useBrand();
 
   const brandsForLocation = useMemo(() => {
     if (!country || !city) return [];
@@ -126,38 +126,31 @@ export default function BrandsSection() {
       .filter((name) => Array.isArray(brandLogos[name]) && brandLogos[name].length > 0)
       .map((name) => ({
         name,
-        query: encodeURIComponent(brandQueryAlias[name] || name),
         logos: brandLogos[name],
       }));
   }, [country?.code, city?.id]);
 
-  const dynamicLayoutClass = brandsForLocation.length <= 3
-    ? 'flex flex-wrap justify-center gap-3 md:gap-4'
-    : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4';
-
   return (
     <section className="py-10 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
-              Marcas Globales
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Mostrando solo marcas con productos reales disponibles en {city?.name}, {country?.name}.
-            </p>
-          </div>
-          <Link to="/explorar" className="text-sm text-primary font-medium hover:underline flex items-center gap-0.5">
-            Ver todas <ChevronRight className="w-4 h-4" />
-          </Link>
+        <div className="mb-6">
+          <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Paso 2 de 4</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mt-2">Selecciona una marca</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Mostrando marcas disponibles en {city?.name}, {country?.name}.
+          </p>
         </div>
 
         {brandsForLocation.length > 0 ? (
-          <div className={dynamicLayoutClass}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
             {brandsForLocation.map((brand, i) => (
-              <div key={brand.name} className={brandsForLocation.length <= 3 ? 'w-full max-w-[220px]' : ''}>
-                <BrandCard brand={brand} index={i} />
-              </div>
+              <BrandCard 
+                key={brand.name} 
+                brand={brand} 
+                index={i}
+                isSelected={selectedBrand === brand.name}
+                onSelect={() => selectBrand(selectedBrand === brand.name ? null : brand.name)}
+              />
             ))}
           </div>
         ) : (
@@ -174,43 +167,47 @@ export default function BrandsSection() {
 function BrandCard({
   brand,
   index,
+  isSelected,
+  onSelect,
 }: {
   brand: {
     name: string;
-    query: string;
     logos: string[];
   };
   index: number;
+  isSelected: boolean;
+  onSelect: () => void;
 }) {
   const [hidden, setHidden] = useState(false);
 
   if (hidden) return null;
 
   return (
-    <motion.div
+    <motion.button
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
+      onClick={onSelect}
+      className={`w-full h-[120px] rounded-2xl border-2 p-4 flex flex-col justify-between transition-all duration-300 ${
+        isSelected
+          ? 'border-primary bg-primary/10 shadow-lg scale-105'
+          : 'border-border bg-card hover:border-primary/50 hover:bg-secondary/30'
+      }`}
     >
-      <Link
-        to={`/explorar?q=${brand.query}`}
-        className="group block"
-      >
-        <div className="h-[108px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">
-          <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3">
-            <SmartImage
-              sources={brand.logos}
-              alt={brand.name}
-              onAllFailed={() => setHidden(true)}
-              imgClassName="h-7 w-full object-contain"
-              skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
-            />
-          </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground group-hover:text-foreground transition-colors">
-            {brand.name}
-          </p>
-        </div>
-      </Link>
-    </motion.div>
+      <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3">
+        <SmartImage
+          sources={brand.logos}
+          alt={brand.name}
+          onAllFailed={() => setHidden(true)}
+          imgClassName="h-7 w-full object-contain"
+          skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
+        />
+      </div>
+      <p className={`text-xs font-semibold uppercase tracking-[0.1em] transition-colors ${
+        isSelected ? 'text-primary' : 'text-muted-foreground'
+      }`}>
+        {brand.name}
+      </p>
+    </motion.button>
   );
 }

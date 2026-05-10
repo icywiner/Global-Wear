@@ -1,4 +1,5 @@
 import { useLocation } from '@/context/LocationContext';
+import { useBrand } from '@/context/BrandContext';
 import LocationPicker from '@/components/home/LocationPicker';
 import HeroSection from '@/components/home/HeroSection';
 import BrandsSection from '@/components/home/BrandsSection';
@@ -7,6 +8,7 @@ import ProductsGrid from '@/components/home/ProductsGrid';
 
 export default function Home() {
   const { country, city } = useLocation();
+  const { selectedBrand } = useBrand();
 
   if (!country || !city) {
     return <LocationPicker />;
@@ -16,8 +18,8 @@ export default function Home() {
     <div className="bg-background">
       <HeroSection />
       <BrandsSection />
-      <CategoriesSection />
-      <ProductsGrid />
+      {selectedBrand && <CategoriesSection />}
+      {selectedBrand && <ProductsGrid />}
     </div>
   );
 }

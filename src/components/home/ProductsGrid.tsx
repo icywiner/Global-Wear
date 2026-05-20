@@ -130,7 +130,7 @@ export default function ProductsGrid() {
         return true;
       })
       .map((product) => {
-        const offer = getCatalogBestOffer(product.id);
+        const offer = getCatalogBestOffer(product.id, country.code, city.id);
         return { product, offer };
       })
       .filter((item): item is RenderItem => Boolean(item.offer))

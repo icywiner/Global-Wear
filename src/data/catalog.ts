@@ -212,8 +212,8 @@ export function getCatalogOffersForProduct(productId: string, countryCode?: stri
     .sort((a, b) => toUSD(a.price, a.currency) - toUSD(b.price, b.currency));
 }
 
-export function getCatalogBestOffer(productId: string): CatalogOffer | null {
-  const offers = getCatalogOffersForProduct(productId);
+export function getCatalogBestOffer(productId: string, countryCode?: string, cityId?: string): CatalogOffer | null {
+  const offers = getCatalogOffersForProduct(productId, countryCode, cityId);
   return offers.length > 0 ? offers[0] : null;
 }
 

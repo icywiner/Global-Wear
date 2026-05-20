@@ -4,6 +4,7 @@ import SmartImage from '@/components/ui/SmartImage';
 import { useLocation } from '@/context/LocationContext';
 import { useBrand } from '@/context/BrandContext';
 import { getCatalogOffersForProduct, getCatalogProductsForLocation } from '@/data/catalog';
+import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
 
 const brandLogos: Record<string, string[]> = {
   Nike: [
@@ -199,6 +200,7 @@ function BrandCard({
           sources={brand.logos}
           alt={brand.name}
           onAllFailed={() => setHidden(true)}
+          fallbackSrc={buildPremiumPlaceholder(brand.name)}
           imgClassName="h-7 w-full object-contain"
           skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
         />

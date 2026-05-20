@@ -306,12 +306,14 @@ export const offers: StoreOffer[] = [
   o('puma-suede-classic', 'Puma Store', 'US', 'nyc', 75, 'USD', '$', 'https://us.puma.com/us/en/pd/suede-classic-xxi-sneakers/374915.html'),
   o('puma-suede-classic', 'Puma Store', 'US', 'la', 75, 'USD', '$', 'https://us.puma.com/us/en/pd/suede-classic-xxi-sneakers/374915.html'),
   o('puma-suede-classic', 'Puma Store', 'ES', 'mad', 80, 'EUR', '€', 'https://eu.puma.com/es/pd/suede-classic-xxi/374915.html'),
+  o('puma-suede-classic', 'Puma Store', 'ES', 'bcn', 80, 'EUR', '€', 'https://eu.puma.com/es/pd/suede-classic-xxi/374915.html'),
   o('puma-suede-classic', 'Puma Store', 'AR', 'bue', 99999, 'ARS', '$', 'https://ar.puma.com/suede-classic/p'),
 
   // Puma RS-X
   o('puma-rs-x', 'Puma Store', 'US', 'nyc', 110, 'USD', '$', 'https://us.puma.com/us/en/pd/rs-x-efekt-sneakers/390776.html'),
   o('puma-rs-x', 'Puma Store', 'US', 'la', 110, 'USD', '$', 'https://us.puma.com/us/en/pd/rs-x-efekt-sneakers/390776.html'),
   o('puma-rs-x', 'Puma Store', 'ES', 'mad', 119.99, 'EUR', '€', 'https://eu.puma.com/es/pd/rs-x-efekt/390776.html'),
+  o('puma-rs-x', 'Puma Store', 'ES', 'bcn', 119.99, 'EUR', '€', 'https://eu.puma.com/es/pd/rs-x-efekt/390776.html'),
 
   // Puma Caven
   o('puma-caven', 'Puma Store', 'US', 'nyc', 65, 'USD', '$', 'https://us.puma.com/us/en/pd/caven-2-0-sneakers/392290.html'),
@@ -344,15 +346,18 @@ export const offers: StoreOffer[] = [
   o('adidas-essentials-hoodie', 'Adidas Store', 'US', 'nyc', 65, 'USD', '$', 'https://www.adidas.com/us/essentials-3-stripes-full-zip-hoodie/IJ6474.html'),
   o('adidas-essentials-hoodie', 'Adidas Store', 'US', 'la', 65, 'USD', '$', 'https://www.adidas.com/us/essentials-3-stripes-full-zip-hoodie/IJ6474.html'),
   o('adidas-essentials-hoodie', 'Adidas Store', 'ES', 'mad', 60, 'EUR', '€', 'https://www.adidas.es/sudadera-essentials-3-bandas/IJ6474.html'),
+  o('adidas-essentials-hoodie', 'Adidas Store', 'ES', 'bcn', 60, 'EUR', '€', 'https://www.adidas.es/sudadera-essentials-3-bandas/IJ6474.html'),
   o('adidas-essentials-hoodie', 'Adidas Store', 'AR', 'bue', 79999, 'ARS', '$', 'https://www.adidas.com.ar/sudadera-essentials-3-stripes/IJ6474.html'),
 
   o('adidas-trefoil-hoodie', 'Adidas Store', 'US', 'nyc', 75, 'USD', '$', 'https://www.adidas.com/us/trefoil-hoodie/DT7964.html'),
   o('adidas-trefoil-hoodie', 'Adidas Store', 'ES', 'mad', 70, 'EUR', '€', 'https://www.adidas.es/sudadera-trefoil/DT7964.html'),
+  o('adidas-trefoil-hoodie', 'Adidas Store', 'ES', 'bcn', 70, 'EUR', '€', 'https://www.adidas.es/sudadera-trefoil/DT7964.html'),
   o('adidas-trefoil-hoodie', 'Adidas Store', 'AR', 'bue', 89999, 'ARS', '$', 'https://www.adidas.com.ar/sudadera-trefoil/DT7964.html'),
 
   o('adidas-all-szn-hoodie', 'Adidas Store', 'US', 'nyc', 60, 'USD', '$', 'https://www.adidas.com/us/all-szn-fleece-hoodie/IC9766.html'),
   o('adidas-all-szn-hoodie', 'Adidas Store', 'US', 'la', 60, 'USD', '$', 'https://www.adidas.com/us/all-szn-fleece-hoodie/IC9766.html'),
   o('adidas-all-szn-hoodie', 'Adidas Store', 'ES', 'mad', 55, 'EUR', '€', 'https://www.adidas.es/sudadera-all-szn-fleece/IC9766.html'),
+  o('adidas-all-szn-hoodie', 'Adidas Store', 'ES', 'bcn', 55, 'EUR', '€', 'https://www.adidas.es/sudadera-all-szn-fleece/IC9766.html'),
 
   o('champion-reverse-weave', 'Champion Store', 'US', 'nyc', 70, 'USD', '$', 'https://www.champion.com/reverse-weave-hoodie-GF68.html'),
   o('champion-reverse-weave', 'Champion Store', 'US', 'la', 70, 'USD', '$', 'https://www.champion.com/reverse-weave-hoodie-GF68.html'),
@@ -367,6 +372,7 @@ export const offers: StoreOffer[] = [
   o('puma-essentials-hoodie', 'Puma Store', 'US', 'nyc', 50, 'USD', '$', 'https://us.puma.com/us/en/pd/essentials-big-logo-hoodie/586688.html'),
   o('puma-essentials-hoodie', 'Puma Store', 'US', 'la', 50, 'USD', '$', 'https://us.puma.com/us/en/pd/essentials-big-logo-hoodie/586688.html'),
   o('puma-essentials-hoodie', 'Puma Store', 'ES', 'mad', 49.99, 'EUR', '€', 'https://eu.puma.com/es/pd/essentials-big-logo-hoodie/586688.html'),
+  o('puma-essentials-hoodie', 'Puma Store', 'ES', 'bcn', 49.99, 'EUR', '€', 'https://eu.puma.com/es/pd/essentials-big-logo-hoodie/586688.html'),
   o('puma-essentials-hoodie', 'Puma Store', 'AR', 'bue', 64999, 'ARS', '$', 'https://ar.puma.com/essentials-big-logo-hoodie/p'),
 
   o('converse-go-to-hoodie', 'Converse Store', 'US', 'nyc', 60, 'USD', '$', 'https://www.converse.com/shop/p/go-to-star-chevron-hoodie/10025411.html'),
@@ -393,11 +399,13 @@ export const offers: StoreOffer[] = [
   o('levis-trucker-jacket', "Levi's Store", 'US', 'nyc', 108, 'USD', '$', 'https://www.levi.com/US/en_US/clothing/men/outerwear/trucker-jacket/p/723340070'),
   o('levis-trucker-jacket', "Levi's Store", 'US', 'la', 108, 'USD', '$', 'https://www.levi.com/US/en_US/clothing/men/outerwear/trucker-jacket/p/723340070'),
   o('levis-trucker-jacket', "Levi's Store", 'ES', 'mad', 110, 'EUR', '€', 'https://www.levi.com/ES/es_ES/ropa/hombre/chaquetas/the-trucker-jacket/p/723340070'),
+  o('levis-trucker-jacket', "Levi's Store", 'ES', 'bcn', 110, 'EUR', '€', 'https://www.levi.com/ES/es_ES/ropa/hombre/chaquetas/the-trucker-jacket/p/723340070'),
   o('levis-trucker-jacket', "Levi's Store", 'AR', 'bue', 129999, 'ARS', '$', 'https://www.levi.com.ar/trucker-jacket/p'),
 
   o('levis-sherpa-trucker', "Levi's Store", 'US', 'nyc', 148, 'USD', '$', 'https://www.levi.com/US/en_US/clothing/men/outerwear/sherpa-trucker-jacket/p/163650089'),
   o('levis-sherpa-trucker', "Levi's Store", 'US', 'la', 148, 'USD', '$', 'https://www.levi.com/US/en_US/clothing/men/outerwear/sherpa-trucker-jacket/p/163650089'),
   o('levis-sherpa-trucker', "Levi's Store", 'ES', 'mad', 150, 'EUR', '€', 'https://www.levi.com/ES/es_ES/sherpa-trucker/p/163650089'),
+  o('levis-sherpa-trucker', "Levi's Store", 'ES', 'bcn', 150, 'EUR', '€', 'https://www.levi.com/ES/es_ES/sherpa-trucker/p/163650089'),
   o('levis-sherpa-trucker', "Levi's Store", 'AR', 'bue', 179999, 'ARS', '$', 'https://www.levi.com.ar/sherpa-trucker/p'),
 
   o('nike-windrunner', 'Nike Store', 'US', 'nyc', 110, 'USD', '$', 'https://www.nike.com/t/sportswear-windrunner-hooded-jacket'),
@@ -412,11 +420,13 @@ export const offers: StoreOffer[] = [
   o('adidas-track-jacket', 'Adidas Store', 'US', 'nyc', 90, 'USD', '$', 'https://www.adidas.com/us/adicolor-classics-sst-track-jacket/IK7025.html'),
   o('adidas-track-jacket', 'Adidas Store', 'US', 'la', 90, 'USD', '$', 'https://www.adidas.com/us/adicolor-classics-sst-track-jacket/IK7025.html'),
   o('adidas-track-jacket', 'Adidas Store', 'ES', 'mad', 85, 'EUR', '€', 'https://www.adidas.es/chaqueta-adicolor-classics-sst/IK7025.html'),
+  o('adidas-track-jacket', 'Adidas Store', 'ES', 'bcn', 85, 'EUR', '€', 'https://www.adidas.es/chaqueta-adicolor-classics-sst/IK7025.html'),
   o('adidas-track-jacket', 'Adidas Store', 'AR', 'bue', 109999, 'ARS', '$', 'https://www.adidas.com.ar/chaqueta-adicolor-classics-sst/IK7025.html'),
 
   o('adidas-bsc-insulated', 'Adidas Store', 'US', 'nyc', 120, 'USD', '$', 'https://www.adidas.com/us/bsc-3-stripes-insulated-jacket/HG6276.html'),
   o('adidas-bsc-insulated', 'Adidas Store', 'US', 'la', 120, 'USD', '$', 'https://www.adidas.com/us/bsc-3-stripes-insulated-jacket/HG6276.html'),
   o('adidas-bsc-insulated', 'Adidas Store', 'ES', 'mad', 110, 'EUR', '€', 'https://www.adidas.es/chaqueta-bsc-3-bandas/HG6276.html'),
+  o('adidas-bsc-insulated', 'Adidas Store', 'ES', 'bcn', 110, 'EUR', '€', 'https://www.adidas.es/chaqueta-bsc-3-bandas/HG6276.html'),
 
   o('puma-essentials-windbreaker', 'Puma Store', 'US', 'nyc', 55, 'USD', '$', 'https://us.puma.com/us/en/pd/essentials-windbreaker/587307.html'),
   o('puma-essentials-windbreaker', 'Puma Store', 'US', 'la', 55, 'USD', '$', 'https://us.puma.com/us/en/pd/essentials-windbreaker/587307.html'),
@@ -480,16 +490,19 @@ export const offers: StoreOffer[] = [
   o('adidas-trefoil-tee', 'Adidas Store', 'US', 'nyc', 35, 'USD', '$', 'https://www.adidas.com/us/trefoil-tee/IU2421.html'),
   o('adidas-trefoil-tee', 'Adidas Store', 'US', 'la', 35, 'USD', '$', 'https://www.adidas.com/us/trefoil-tee/IU2421.html'),
   o('adidas-trefoil-tee', 'Adidas Store', 'ES', 'mad', 35, 'EUR', '€', 'https://www.adidas.es/camiseta-trefoil/IU2421.html'),
+  o('adidas-trefoil-tee', 'Adidas Store', 'ES', 'bcn', 35, 'EUR', '€', 'https://www.adidas.es/camiseta-trefoil/IU2421.html'),
   o('adidas-trefoil-tee', 'Adidas Store', 'AR', 'bue', 39999, 'ARS', '$', 'https://www.adidas.com.ar/camiseta-trefoil/IU2421.html'),
 
   o('adidas-3stripes-tee', 'Adidas Store', 'US', 'nyc', 30, 'USD', '$', 'https://www.adidas.com/us/essentials-3-stripes-tee/GL3732.html'),
   o('adidas-3stripes-tee', 'Adidas Store', 'US', 'la', 30, 'USD', '$', 'https://www.adidas.com/us/essentials-3-stripes-tee/GL3732.html'),
   o('adidas-3stripes-tee', 'Adidas Store', 'ES', 'mad', 30, 'EUR', '€', 'https://www.adidas.es/camiseta-essentials-3-bandas/GL3732.html'),
+  o('adidas-3stripes-tee', 'Adidas Store', 'ES', 'bcn', 30, 'EUR', '€', 'https://www.adidas.es/camiseta-essentials-3-bandas/GL3732.html'),
   o('adidas-3stripes-tee', 'Adidas Store', 'AR', 'bue', 34999, 'ARS', '$', 'https://www.adidas.com.ar/camiseta-essentials-3-bandas/GL3732.html'),
 
   o('adidas-linear-tee', 'Adidas Store', 'US', 'nyc', 25, 'USD', '$', 'https://www.adidas.com/us/essentials-linear-logo-tee/GL0057.html'),
   o('adidas-linear-tee', 'Adidas Store', 'US', 'la', 25, 'USD', '$', 'https://www.adidas.com/us/essentials-linear-logo-tee/GL0057.html'),
   o('adidas-linear-tee', 'Adidas Store', 'ES', 'mad', 25, 'EUR', '€', 'https://www.adidas.es/camiseta-essentials-linear/GL0057.html'),
+  o('adidas-linear-tee', 'Adidas Store', 'ES', 'bcn', 25, 'EUR', '€', 'https://www.adidas.es/camiseta-essentials-linear/GL0057.html'),
   o('adidas-linear-tee', 'Adidas Store', 'AR', 'bue', 29999, 'ARS', '$', 'https://www.adidas.com.ar/camiseta-essentials-linear/GL0057.html'),
 
   o('champion-script-tee', 'Champion Store', 'US', 'nyc', 25, 'USD', '$', 'https://www.champion.com/script-logo-tee-GT19.html'),
@@ -505,6 +518,7 @@ export const offers: StoreOffer[] = [
   o('puma-ess-logo-tee', 'Puma Store', 'US', 'nyc', 22, 'USD', '$', 'https://us.puma.com/us/en/pd/essentials-logo-tee/586666.html'),
   o('puma-ess-logo-tee', 'Puma Store', 'US', 'la', 22, 'USD', '$', 'https://us.puma.com/us/en/pd/essentials-logo-tee/586666.html'),
   o('puma-ess-logo-tee', 'Puma Store', 'ES', 'mad', 24.99, 'EUR', '€', 'https://eu.puma.com/es/pd/essentials-logo-tee/586666.html'),
+  o('puma-ess-logo-tee', 'Puma Store', 'ES', 'bcn', 24.99, 'EUR', '€', 'https://eu.puma.com/es/pd/essentials-logo-tee/586666.html'),
   o('puma-ess-logo-tee', 'Puma Store', 'AR', 'bue', 24999, 'ARS', '$', 'https://ar.puma.com/essentials-logo-tee/p'),
 
   o('new-balance-essentials-tee', 'New Balance Store', 'US', 'nyc', 29.99, 'USD', '$', 'https://www.newbalance.com/pd/essentials-stacked-logo-tee/MT31541.html'),

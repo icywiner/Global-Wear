@@ -47,14 +47,11 @@ export default function CountriesSection() {
                   </span>
                 )}
 
-                <div className="flex items-center gap-4 mb-3">
-                  <span className="text-4xl">{c.flag}</span>
-                  <div>
-                    <h3 className="font-bold text-foreground text-lg">{c.name}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {c.cities.map(ci => ci.name).join(' · ')}
-                    </p>
-                  </div>
+                <div className="mb-3">
+                  <h3 className="font-bold text-foreground text-lg">{c.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {c.cities.map(ci => ci.name).join(' · ')}
+                  </p>
                 </div>
 
                 <div className="flex items-center justify-between">

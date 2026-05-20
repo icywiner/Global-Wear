@@ -87,7 +87,6 @@ export default function LocationPicker() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <p className="text-3xl mb-1">{c.flag}</p>
                       <p className="font-semibold text-white text-lg">{c.name}</p>
                       <p className="text-xs text-white/70 mb-3">{c.cities.map(ci => ci.name).join(' · ')}</p>
 

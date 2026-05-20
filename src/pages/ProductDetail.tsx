@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
 import {
-  catalogOffers,
   catalogProducts,
   getCatalogOffersForProduct,
   getCatalogBestOffer,
@@ -33,12 +32,7 @@ export default function ProductDetail() {
     ? getCatalogOffersForProduct(product.id, country.code, city.id)
       .filter(o => Boolean(o.price) && Boolean(o.store) && Boolean(o.url))
     : [];
-
-  const allOffers = catalogOffers
-    .filter(o => o.productId === product.id && o.inStock && Boolean(o.price) && Boolean(o.store) && Boolean(o.url))
-    .sort((a, b) => toUSD(a.price, a.currency) - toUSD(b.price, b.currency));
-
-  const bestGlobal = getCatalogBestOffer(product.id);
+  const bestLocal = country && city ? getCatalogBestOffer(product.id, country.code, city.id) : null;
 
   const categoryIcons: Record<string, string> = {
     zapatillas: '👟', buzos: '🧥', camperas: '🧥', jeans: '👖', remeras: '👕',
@@ -156,17 +150,17 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Best global */}
-          {bestGlobal && (
+          {/* Best local */}
+          {bestLocal && (
             <div className="bg-accent/5 border border-accent/20 rounded-xl p-4">
               <p className="text-xs font-semibold text-accent uppercase tracking-wider mb-2 flex items-center gap-1">
                 <Globe className="w-3 h-3" />
-                Mejor precio global
+                Mejor precio en {city?.name}
               </p>
               <p className="font-bold text-foreground">
-                {bestGlobal.currencySymbol}{bestGlobal.price.toLocaleString()}{' '}
+                {bestLocal.currencySymbol}{bestLocal.price.toLocaleString()}{' '}
                 <span className="text-sm font-normal text-muted-foreground">
-                  en {bestGlobal.store} — {getCityName(bestGlobal.countryCode, bestGlobal.cityId)}, {getCountryName(bestGlobal.countryCode)}
+                  en {bestLocal.store} — {getCityName(bestLocal.countryCode, bestLocal.cityId)}, {getCountryName(bestLocal.countryCode)}
                 </span>
               </p>
             </div>
@@ -178,14 +172,14 @@ export default function ProductDetail() {
       <section>
         <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2" style={{ fontFamily: 'Space Grotesk' }}>
           <ShieldCheck className="w-5 h-5 text-accent" />
-          Disponible en tiendas oficiales
+          Disponible en tiendas oficiales de tu ubicación
         </h2>
         <div className="space-y-3">
-          {allOffers.map((offer, i) => (
+          {localOffers.map((offer, i) => (
             <OfferRow
               key={i}
               offer={offer}
-              isBest={bestGlobal?.countryCode === offer.countryCode && bestGlobal?.cityId === offer.cityId}
+              isBest={bestLocal?.countryCode === offer.countryCode && bestLocal?.cityId === offer.cityId}
               countryName={getCountryName(offer.countryCode)}
               cityName={getCityName(offer.countryCode, offer.cityId)}
               flag={getCountryFlag(offer.countryCode)}

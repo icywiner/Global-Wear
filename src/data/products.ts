@@ -34,7 +34,7 @@ export const categories: { id: Category; label: string; icon: string; image: str
 // ============================================================
 // PRODUCTS — 100+ real products from official stores
 // ============================================================
-export const products: Product[] = [
+const rawProducts: Product[] = [
   // ======================== ZAPATILLAS ========================
   { id: 'nike-air-force-1', name: "Air Force 1 '07", brand: 'Nike', category: 'zapatillas', description: 'Las icónicas zapatillas Nike Air Force 1, diseño clásico en blanco.', images: ['https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/350e7f3a-979a-402b-9396-a4c55ee2ea43/AIR+FORCE+1+%2707.png'] },
   { id: 'nike-air-max-90', name: 'Air Max 90', brand: 'Nike', category: 'zapatillas', description: 'Nike Air Max 90, máxima amortiguación visible.', images: ['https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/fd17b420-b388-4c8a-aaaa-e0a98ddf175f/AIR+MAX+90.png'] },
@@ -118,7 +118,113 @@ export const products: Product[] = [
   { id: 'new-balance-essentials-tee', name: 'Essentials Stacked Logo Tee', brand: 'New Balance', category: 'remeras', description: 'New Balance Essentials, remera con logo NB apilado.', images: ['https://nb.scene7.com/is/image/NB/mt31541bk_nb_02_i?$pdpflexf2$&wid=800&hei=800'] },
   { id: 'vans-classic-tee', name: 'Classic Logo Tee', brand: 'Vans', category: 'remeras', description: 'Vans Classic, remera con logo Off The Wall.', images: ['https://images.vans.com/is/image/VansBrand/VN000GGGY28-HERO?wid=800'] },
   { id: 'tnf-simple-dome-tee', name: 'Simple Dome Tee', brand: 'The North Face', category: 'remeras', description: 'The North Face Simple Dome, remera con logo half dome.', images: ['https://images.thenorthface.com/is/image/TheNorthFace/NF0A2TX5_JK3_hero?wid=780&hei=906'] },
+  { id: 'nike-air-max-plus', name: 'Air Max Plus', brand: 'Nike', category: 'zapatillas', description: 'Nike Air Max Plus, una silueta icónica con estilo agresivo y Air visible.', images: ['https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/a1d07ab6-41b2-4033-8233-b1c246f9e8d1/AIR+MAX+97.png'] },
+  { id: 'nike-p-6000', name: 'P-6000', brand: 'Nike', category: 'zapatillas', description: 'Nike P-6000, running retro con estética de pista y capas técnicas.', images: ['https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/awjogtdnqxniqqk0wpgf/AIR+MAX+270.png'] },
+  { id: 'adidas-handball-spezial', name: 'Handball Spezial', brand: 'Adidas', category: 'zapatillas', description: 'Adidas Handball Spezial, clásico terrace con gamuza y perfil bajo.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/1fcf1b7c7f6e4e12a268af2a0104b21d_9366/Gazelle_Shoes_Black_BB5476_01_standard.jpg'] },
+  { id: 'adidas-firebird-track-jacket', name: 'Firebird Track Jacket', brand: 'Adidas', category: 'camperas', description: 'Adidas Firebird, campera de tracksuit clásica con 3 rayas.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b7b80e06d5c14eefa9c6af0800a0c6c0_9366/Adicolor_Classics_SST_Track_Jacket_Black_IK7025_01_laydown.jpg'] },
+  { id: 'puma-palermo', name: 'Palermo', brand: 'Puma', category: 'zapatillas', description: 'Puma Palermo, zapatilla terrace con perfil limpio y base vintage.', images: ['https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/374915/01/sv01/fnd/PNA/fmt/png/Suede-Classic-XXI-Sneakers'] },
+  { id: 'puma-t7-track-jacket', name: 'T7 Track Jacket', brand: 'Puma', category: 'camperas', description: 'Puma T7 Track Jacket, diseño deportivo clásico con paneles laterales.', images: ['https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/587307/01/sv01/fnd/PNA/fmt/png/Essentials-Windbreaker'] },
+  { id: 'converse-chuck-70-ox', name: 'Chuck 70 Ox', brand: 'Converse', category: 'zapatillas', description: 'Converse Chuck 70 Ox, versión baja del ícono atemporal.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw4fa12e17/images/a_107/162050C_A_107X1.jpg'] },
+  { id: 'converse-run-star-hike', name: 'Run Star Hike', brand: 'Converse', category: 'zapatillas', description: 'Converse Run Star Hike, plataforma moderna con suela dentada.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw7b917487/images/a_107/171327C_A_107X1.jpg'] },
+  { id: 'vans-knu-skool', name: 'Knu Skool', brand: 'Vans', category: 'zapatillas', description: 'Vans Knu Skool, reinterpretación chunky del skate clásico.', images: ['https://images.vans.com/is/image/VansBrand/VN000D3HY28-HERO?wid=800'] },
+  { id: 'vans-slip-on-classic', name: 'Classic Slip-On', brand: 'Vans', category: 'zapatillas', description: 'Vans Classic Slip-On, el perfil más práctico y reconocible de la marca.', images: ['https://images.vans.com/is/image/VansBrand/VN000EYEBLK-HERO?wid=800'] },
+  { id: 'new-balance-9060', name: '9060', brand: 'New Balance', category: 'zapatillas', description: 'New Balance 9060, diseño futurista inspirado en el running de archivo.', images: ['https://nb.scene7.com/is/image/NB/m9060blc_nb_02_i?$pdpflexf2$&wid=800&hei=800'] },
+  { id: 'new-balance-550', name: '550', brand: 'New Balance', category: 'zapatillas', description: 'New Balance 550, clásico de basketball con estética limpia.', images: ['https://nb.scene7.com/is/image/NB/bb550ha1_nb_02_i?$pdpflexf2$&wid=800&hei=800'] },
+  { id: 'champion-rw-crew', name: 'Reverse Weave Crew', brand: 'Champion', category: 'buzos', description: 'Champion Reverse Weave Crew, cuello redondo pesado y durable.', images: ['https://images.champion.com/is/image/champion/GF68_045_front?wid=800&hei=800'] },
+  { id: 'champion-premium-tee', name: 'Premium Script Tee', brand: 'Champion', category: 'remeras', description: 'Champion Premium Script Tee, básica con branding clásico.', images: ['https://images.champion.com/is/image/champion/GT19_045_front?wid=800&hei=800'] },
+  { id: 'tnf-denali-jacket', name: 'Denali Jacket', brand: 'The North Face', category: 'camperas', description: 'The North Face Denali Jacket, fleece técnico con bloqueado clásico.', images: ['https://images.thenorthface.com/is/image/TheNorthFace/NF0A3C8D_JK3_hero?wid=780&hei=906'] },
+  { id: 'tnf-athletics-hoodie', name: 'Mountain Athletics Hoodie', brand: 'The North Face', category: 'buzos', description: 'The North Face Mountain Athletics, hoodie técnico para uso diario.', images: ['https://images.thenorthface.com/is/image/TheNorthFace/NF0A2TX5_JK3_hero?wid=780&hei=906'] },
+  { id: 'levis-ribcage-straight', name: 'Ribcage Straight Ankle', brand: "Levi's", category: 'jeans', description: "Levi's Ribcage Straight Ankle, tiro alto y pierna recta moderna.", images: ['https://lsco.scene7.com/is/image/lsco/005010114-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000'] },
+  { id: 'levis-93-straight', name: "501 '93 Straight", brand: "Levi's", category: 'jeans', description: "Levi's 501 '93 Straight, corte inspirado en los 90 con fit relajado.", images: ['https://lsco.scene7.com/is/image/lsco/045115279-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000'] },
 ];
+
+const categoryFallbackImages: Record<Category, string[]> = {
+  zapatillas: [
+    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/7bee4ee3e78a4e4a8608a8bf0117cf62_9366/Samba_OG_Shoes_White_B75806_01_standard.jpg',
+    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/350e7f3a-979a-402b-9396-a4c55ee2ea43/AIR+FORCE+1+%2707.png',
+  ],
+  buzos: [
+    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5a4c56c0-c8a4-4ed5-9fdd-5e3f7be8fb2b/TECH+FLEECE+FZ+HOODIE.png',
+    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b0c2e8a6e89a4d3f9f65af2a01517d60_9366/Trefoil_Hoodie_Black_DT7964_01_laydown.jpg',
+  ],
+  camperas: [
+    'https://images.thenorthface.com/is/image/TheNorthFace/NF0A3C8D_JK3_hero?wid=780&hei=906',
+    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/d7bbded4-fb86-4823-8e03-7c3cddfc823e/M+NK+WR+JKT.png',
+  ],
+  jeans: [
+    'https://lsco.scene7.com/is/image/lsco/005010114-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
+    'https://lsco.scene7.com/is/image/lsco/723340070-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
+  ],
+  remeras: [
+    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa1b5b1a-27b5-47f6-b498-7ea080f5819b/M+NSW+TEE+ICON+FUTURA.png',
+    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b4a04e63c79149228e32ae0a01517813_9366/Trefoil_Tee_Black_IU2421_01_laydown.jpg',
+  ],
+};
+
+const brandFallbackImages: Record<string, string[]> = {
+  Nike: [
+    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/350e7f3a-979a-402b-9396-a4c55ee2ea43/AIR+FORCE+1+%2707.png',
+    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5a4c56c0-c8a4-4ed5-9fdd-5e3f7be8fb2b/TECH+FLEECE+FZ+HOODIE.png',
+  ],
+  Adidas: [
+    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/7bee4ee3e78a4e4a8608a8bf0117cf62_9366/Samba_OG_Shoes_White_B75806_01_standard.jpg',
+    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b4a04e63c79149228e32ae0a01517813_9366/Trefoil_Tee_Black_IU2421_01_laydown.jpg',
+  ],
+  Puma: [
+    'https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/374915/01/sv01/fnd/PNA/fmt/png/Suede-Classic-XXI-Sneakers',
+    'https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/586688/01/sv01/fnd/PNA/fmt/png/Essentials-Big-Logo-Hoodie',
+  ],
+  "Levi's": [
+    'https://lsco.scene7.com/is/image/lsco/005010114-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
+    'https://lsco.scene7.com/is/image/lsco/723340070-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
+  ],
+  Converse: [
+    'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw4fa12e17/images/a_107/162050C_A_107X1.jpg',
+    'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw3456test/images/a_107/10023876_A_107X1.jpg',
+  ],
+  Vans: [
+    'https://images.vans.com/is/image/VansBrand/VN000D3HY28-HERO?wid=800',
+    'https://images.vans.com/is/image/VansBrand/VN000GGGY28-HERO?wid=800',
+  ],
+  'New Balance': [
+    'https://nb.scene7.com/is/image/NB/ml574evg_nb_02_i?$pdpflexf2$&wid=800&hei=800',
+    'https://nb.scene7.com/is/image/NB/mt31541bk_nb_02_i?$pdpflexf2$&wid=800&hei=800',
+  ],
+  Champion: [
+    'https://images.champion.com/is/image/champion/GF68_045_front?wid=800&hei=800',
+    'https://images.champion.com/is/image/champion/GT19_045_front?wid=800&hei=800',
+  ],
+  'The North Face': [
+    'https://images.thenorthface.com/is/image/TheNorthFace/NF0A3C8D_JK3_hero?wid=780&hei=906',
+    'https://images.thenorthface.com/is/image/TheNorthFace/NF0A2TX5_JK3_hero?wid=780&hei=906',
+  ],
+};
+
+function buildProductImages(product: Product, usedPrimaryImages: Set<string>): string[] {
+  const candidates = [
+    ...(product.images || []),
+    ...(brandFallbackImages[product.brand] || []),
+    ...(categoryFallbackImages[product.category] || []),
+  ].filter(Boolean);
+
+  const uniqueCandidates = [...new Set(candidates)];
+  const primaryImage = uniqueCandidates.find((image) => !usedPrimaryImages.has(image)) ?? uniqueCandidates[0];
+
+  if (primaryImage) {
+    usedPrimaryImages.add(primaryImage);
+  }
+
+  return primaryImage
+    ? [primaryImage, ...uniqueCandidates.filter((image) => image !== primaryImage)]
+    : [];
+}
+
+const usedPrimaryImages = new Set<string>();
+
+export const products: Product[] = rawProducts.map((product) => ({
+  ...product,
+  images: buildProductImages(product, usedPrimaryImages),
+}));
 
 // ============================================================
 // STORE OFFERS — Real prices from official stores
@@ -534,6 +640,25 @@ export const offers: StoreOffer[] = [
   o('tnf-simple-dome-tee', 'The North Face Store', 'US', 'la', 30, 'USD', '$', 'https://www.thenorthface.com/en-us/mens/simple-dome-tee'),
   o('tnf-simple-dome-tee', 'The North Face Store', 'ES', 'mad', 35, 'EUR', '€', 'https://www.thenorthface.es/shop/es/tnf-es/simple-dome-tee'),
   o('tnf-simple-dome-tee', 'The North Face Store', 'AR', 'bue', 34999, 'ARS', '$', 'https://www.thenorthface.com.ar/simple-dome-tee/p'),
+
+  o('nike-air-max-plus', 'Nike Store', 'US', 'nyc', 180, 'USD', '$', 'https://www.nike.com/t/air-max-plus-shoes'),
+  o('nike-p-6000', 'Nike Store', 'US', 'nyc', 120, 'USD', '$', 'https://www.nike.com/t/p-6000-shoes'),
+  o('adidas-handball-spezial', 'Adidas Store', 'US', 'nyc', 110, 'USD', '$', 'https://www.adidas.com/us/handball-spezial-shoes/'),
+  o('adidas-firebird-track-jacket', 'Adidas Store', 'US', 'nyc', 90, 'USD', '$', 'https://www.adidas.com/us/firebird-track-top/'),
+  o('puma-palermo', 'Puma Store', 'US', 'nyc', 100, 'USD', '$', 'https://us.puma.com/us/en/pd/palermo-sneakers/'),
+  o('puma-t7-track-jacket', 'Puma Store', 'US', 'nyc', 85, 'USD', '$', 'https://us.puma.com/us/en/pd/t7-track-jacket/'),
+  o('converse-chuck-70-ox', 'Converse Store', 'US', 'nyc', 85, 'USD', '$', 'https://www.converse.com/shop/p/chuck-70-unisex-low-top-shoe/'),
+  o('converse-run-star-hike', 'Converse Store', 'US', 'nyc', 120, 'USD', '$', 'https://www.converse.com/shop/p/run-star-hike-unisex-shoe/'),
+  o('vans-knu-skool', 'Vans Store', 'US', 'nyc', 80, 'USD', '$', 'https://www.vans.com/en-us/shoes-c00081/knu-skool-shoe-pvn0a5krfbka.html'),
+  o('vans-slip-on-classic', 'Vans Store', 'US', 'nyc', 60, 'USD', '$', 'https://www.vans.com/en-us/shoes-c00081/classic-slip-on-shoe-pvn000eyeblk.html'),
+  o('new-balance-9060', 'New Balance Store', 'US', 'nyc', 150, 'USD', '$', 'https://www.newbalance.com/pd/9060/'),
+  o('new-balance-550', 'New Balance Store', 'US', 'nyc', 110, 'USD', '$', 'https://www.newbalance.com/pd/550/'),
+  o('champion-rw-crew', 'Champion Store', 'US', 'nyc', 65, 'USD', '$', 'https://www.champion.com/reverse-weave-crewneck-GF68.html'),
+  o('champion-premium-tee', 'Champion Store', 'US', 'nyc', 24, 'USD', '$', 'https://www.champion.com/premium-script-tee-GT19.html'),
+  o('tnf-denali-jacket', 'The North Face Store', 'US', 'nyc', 240, 'USD', '$', 'https://www.thenorthface.com/en-us/mens/denali-jacket-pNF0A7QEY'),
+  o('tnf-athletics-hoodie', 'The North Face Store', 'US', 'nyc', 75, 'USD', '$', 'https://www.thenorthface.com/en-us/mens/mountain-athletics-hoodie'),
+  o('levis-ribcage-straight', "Levi's Store", 'US', 'nyc', 98, 'USD', '$', 'https://www.levi.com/US/en_US/clothing/women/jeans/straight/ribcage-straight-ankle-jeans/p/'),
+  o('levis-93-straight', "Levi's Store", 'US', 'nyc', 89.50, 'USD', '$', 'https://www.levi.com/US/en_US/clothing/men/jeans/straight/501-93-straight-jeans/p/'),
 ];
 
 // ============================================================

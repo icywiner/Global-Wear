@@ -98,6 +98,18 @@ function getCountryFlag(countryCode: string): string {
   return countries.find((country) => country.code === countryCode)?.flag || '';
 }
 
+function getAllLocations(): Array<{ countryCode: string; cityId: string; cityName: string; countryName: string; countryFlag: string }> {
+  return countries.flatMap((country) =>
+    country.cities.map((city) => ({
+      countryCode: country.code,
+      cityId: city.id,
+      cityName: city.name,
+      countryName: country.name,
+      countryFlag: country.flag,
+    }))
+  );
+}
+
 function getStoreCoordinates(storeKey: string, cityId: string): { latitude: number; longitude: number } {
   const center = CITY_CENTERS[cityId];
   const baseHash = hashString(storeKey);
@@ -176,7 +188,7 @@ export const catalogProducts: CatalogProduct[] = variantProducts.filter(
   (product) => isValidImageUrl(product.images[0]) && validOfferProductIds.has(product.id)
 );
 
-export const catalogOffers: CatalogOffer[] = variantOffers.filter(
+const baseCatalogOffers: CatalogOffer[] = variantOffers.filter(
   (offer) =>
     offer.price > 0
     && Boolean(offer.store)
@@ -184,6 +196,73 @@ export const catalogOffers: CatalogOffer[] = variantOffers.filter(
     && offer.inStock
     && catalogProducts.some((product) => product.id === offer.productId)
 );
+
+const catalogOffersByLocation = new Map<string, CatalogOffer[]>();
+
+baseCatalogOffers.forEach((offer) => {
+  const key = `${offer.productId}|${offer.countryCode}|${offer.cityId}`;
+  const items = catalogOffersByLocation.get(key) || [];
+  items.push(offer);
+  catalogOffersByLocation.set(key, items);
+});
+
+const catalogOffersByProduct = new Map<string, CatalogOffer[]>();
+
+baseCatalogOffers.forEach((offer) => {
+  const items = catalogOffersByProduct.get(offer.productId) || [];
+  items.push(offer);
+  catalogOffersByProduct.set(offer.productId, items);
+});
+
+function cloneOfferForLocation(
+  offer: CatalogOffer,
+  location: { countryCode: string; cityId: string; cityName: string; countryName: string; countryFlag: string }
+): CatalogOffer {
+  const storeKey = `${offer.store}|${location.countryCode}|${location.cityId}`;
+  const coords = getStoreCoordinates(storeKey, location.cityId);
+
+  return {
+    ...offer,
+    countryCode: location.countryCode,
+    cityId: location.cityId,
+    cityName: location.cityName,
+    countryName: location.countryName,
+    countryFlag: location.countryFlag,
+    storeKey,
+    latitude: coords.latitude,
+    longitude: coords.longitude,
+  };
+}
+
+function getFallbackOffer(productId: string, countryCode: string): CatalogOffer | null {
+  const productOffers = catalogOffersByProduct.get(productId) || [];
+  const sameCountryOffers = productOffers.filter((offer) => offer.countryCode === countryCode);
+  const pool = sameCountryOffers.length > 0 ? sameCountryOffers : productOffers;
+
+  if (pool.length === 0) return null;
+
+  return [...pool].sort((a, b) => toUSD(a.price, a.currency) - toUSD(b.price, b.currency))[0];
+}
+
+export const catalogOffers: CatalogOffer[] = (() => {
+  const expandedOffers = [...baseCatalogOffers];
+  const locations = getAllLocations();
+
+  catalogProducts.forEach((product) => {
+    locations.forEach((location) => {
+      const locationKey = `${product.id}|${location.countryCode}|${location.cityId}`;
+
+      if (catalogOffersByLocation.has(locationKey)) return;
+
+      const fallback = getFallbackOffer(product.id, location.countryCode);
+      if (!fallback) return;
+
+      expandedOffers.push(cloneOfferForLocation(fallback, location));
+    });
+  });
+
+  return expandedOffers;
+})();
 
 const catalogProductSet = new Set(catalogProducts.map((product) => product.id));
 

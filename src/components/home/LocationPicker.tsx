@@ -4,6 +4,7 @@ import { MapPin, ArrowRight, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { countries } from '@/data/locations';
 import SmartImage from '@/components/ui/SmartImage';
+import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
 
 const countryCover: Record<string, string[]> = {
   AR: [
@@ -82,6 +83,7 @@ export default function LocationPicker() {
                     <SmartImage
                       sources={countryCover[c.code] || []}
                       alt={c.name}
+                      fallbackSrc={buildPremiumPlaceholder(c.name)}
                       imgClassName="absolute inset-0 w-full h-full object-cover group-hover:scale-105"
                       skeletonClassName="absolute inset-0 bg-slate-500/40 animate-pulse"
                     />

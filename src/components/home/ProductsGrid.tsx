@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { FixedSizeList as List, type ListChildComponentProps } from 'react-window';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useBrand } from '@/context/BrandContext';
 import {
@@ -29,7 +30,6 @@ interface RowData {
   items: RenderItem[];
   selectedProductId: string | null;
   onSelectProduct: (productId: string, storeKey: string) => void;
-  onImageError: (productId: string) => void;
 }
 
 function ProductRow({ index, style, data }: ListChildComponentProps<RowData>) {
@@ -42,7 +42,6 @@ function ProductRow({ index, style, data }: ListChildComponentProps<RowData>) {
         offer={item.offer}
         isActive={data.selectedProductId === item.product.id}
         onSelect={data.onSelectProduct}
-        onImageError={data.onImageError}
       />
     </div>
   );
@@ -51,6 +50,7 @@ function ProductRow({ index, style, data }: ListChildComponentProps<RowData>) {
 export default function ProductsGrid() {
   const { country, city } = useLocation();
   const { selectedBrand: contextBrand } = useBrand();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedBrand, setSelectedBrand] = useState('all');
@@ -58,8 +58,8 @@ export default function ProductsGrid() {
   const [selectedStoreKey, setSelectedStoreKey] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'low' | 'high' | 'popular'>('popular');
   const [priceRange, setPriceRange] = useState<'all' | 'under100' | '100-200' | '200+'>('all');
-  const [hiddenProductIds, setHiddenProductIds] = useState<Set<string>>(new Set());
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const stats = useMemo(() => getCatalogStats(), []);
   const categoryLabelMap = useMemo(
@@ -119,7 +119,6 @@ export default function ProductsGrid() {
 
     const items: RenderItem[] = availableProducts
       .filter((product) => {
-        if (hiddenProductIds.has(product.id)) return false;
         if (selectedCategory && !hasQuery && product.category !== selectedCategory) return false;
         if (selectedBrand !== 'all' && product.brand !== selectedBrand) return false;
         if (hasQuery) {
@@ -159,7 +158,6 @@ export default function ProductsGrid() {
     return items;
   }, [
     availableProducts,
-    hiddenProductIds,
     priceRange,
     query,
     categoryLabelMap,
@@ -207,13 +205,17 @@ export default function ProductsGrid() {
     setSearchParams(params, { replace: true });
   }, [query, selectedCategory]);
 
-  const onImageError = (productId: string) => {
-    setHiddenProductIds((current) => {
-      const next = new Set(current);
-      next.add(productId);
-      return next;
+  useEffect(() => {
+    if (!selectedCategory) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
-  };
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [selectedCategory]);
 
   const onSelectProduct = (productId: string, storeKey: string) => {
     setSelectedProductId(productId);
@@ -225,7 +227,21 @@ export default function ProductsGrid() {
   }
 
   return (
-    <section className="px-4 pb-16 pt-8">
+    <section ref={resultsRef} className="px-4 pb-16 pt-8 scroll-mt-28">
+      <button
+        type="button"
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          navigate('/');
+        }}
+        className="fixed left-4 top-24 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-4 py-2 text-sm font-medium text-foreground shadow-lg backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-xl md:left-6"
+        aria-label="Volver a categorías"
+        title="Volver a categorías"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span className="hidden sm:inline">Categorías</span>
+      </button>
+
       <div className="mx-auto max-w-[1380px]">
         <div className="mb-6 rounded-3xl border border-border bg-card p-5 md:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -361,7 +377,6 @@ export default function ProductsGrid() {
                     items: renderedItems,
                     selectedProductId,
                     onSelectProduct,
-                    onImageError,
                   }}
                 >
                   {ProductRow}

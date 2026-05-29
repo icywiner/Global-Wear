@@ -13,7 +13,6 @@ interface Props {
 }
 
 export default function ProductCard({ product }: Props) {
-  const [imgError, setImgError] = useState(false);
   const { country, city } = useLocation();
 
   const localOffers = country && city
@@ -22,14 +21,9 @@ export default function ProductCard({ product }: Props) {
   const validLocalOffers = localOffers.filter((o) => Boolean(o.price) && Boolean(o.store) && Boolean(o.url));
   const displayOffer = validLocalOffers[0] || getBestOffer(product.id);
 
-  const hasRequiredData = Boolean(
-    product.images?.[0] &&
-    displayOffer?.price &&
-    displayOffer?.store &&
-    displayOffer?.url
-  );
+  const hasRequiredData = Boolean(displayOffer?.price && displayOffer?.store && displayOffer?.url);
 
-  if (imgError || !displayOffer || !hasRequiredData) return null;
+  if (!displayOffer || !hasRequiredData) return null;
 
   const getCityName = (countryCode: string, cityId: string) =>
     countries.find(c => c.code === countryCode)?.cities.find(ci => ci.id === cityId)?.name || cityId;
@@ -44,7 +38,6 @@ export default function ProductCard({ product }: Props) {
         <SmartImage
           sources={product.images}
           alt={product.name}
-          onAllFailed={() => setImgError(true)}
           fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
           imgClassName="w-full h-full object-contain p-4 group-hover:scale-105"
           skeletonClassName="absolute inset-0 bg-secondary/40 animate-pulse"

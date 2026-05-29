@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import SmartImage from '@/components/ui/SmartImage';
 import { useLocation } from '@/context/LocationContext';
 import { useBrand } from '@/context/BrandContext';
@@ -57,10 +57,6 @@ const brandQueryAlias: Record<string, string> = {
 
 const featuredOrder = [
   {
-    name: 'Nike',
-  },
-  {
-    name: 'Adidas',
   },
   {
     name: 'Puma',
@@ -179,10 +175,6 @@ function BrandCard({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  const [hidden, setHidden] = useState(false);
-
-  if (hidden) return null;
-
   return (
     <motion.button
       initial={{ opacity: 0, scale: 0.9 }}
@@ -199,7 +191,6 @@ function BrandCard({
         <SmartImage
           sources={brand.logos}
           alt={brand.name}
-          onAllFailed={() => setHidden(true)}
           fallbackSrc={buildPremiumPlaceholder(brand.name)}
           imgClassName="h-7 w-full object-contain"
           skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"

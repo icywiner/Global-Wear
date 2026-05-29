@@ -9,7 +9,6 @@ interface MarketplaceProductRowProps {
   offer: CatalogOffer;
   isActive: boolean;
   onSelect: (productId: string, storeKey: string) => void;
-  onImageError: (productId: string) => void;
 }
 
 export default function MarketplaceProductRow({
@@ -17,7 +16,6 @@ export default function MarketplaceProductRow({
   offer,
   isActive,
   onSelect,
-  onImageError,
 }: MarketplaceProductRowProps) {
   return (
     <article
@@ -31,7 +29,6 @@ export default function MarketplaceProductRow({
           <SmartImage
             sources={product.images}
             alt={product.name}
-            onAllFailed={() => onImageError(product.id)}
             fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
             imgClassName="h-full w-full object-contain p-2"
             skeletonClassName="absolute inset-0 animate-pulse bg-gradient-to-br from-secondary to-secondary/60"

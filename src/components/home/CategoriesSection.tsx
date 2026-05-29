@@ -69,7 +69,7 @@ const categoryCards: Array<{
   },
 ];
 
-export default function CategoriesSection() {
+export default function CategoriesSection({ isHighlighted = false }: { isHighlighted?: boolean } = {}) {
   const navigate = useNavigate();
   const { country, city } = useLocation();
   const { selectedBrand } = useBrand();
@@ -88,8 +88,12 @@ export default function CategoriesSection() {
   }, [country, city, selectedBrand]);
 
   return (
-    <section className="py-9 px-4">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-9 px-4 scroll-mt-28">
+      <div
+        className={`max-w-7xl mx-auto rounded-[32px] transition-all duration-500 ${
+          isHighlighted ? 'bg-primary/5 p-4 md:p-5 ring-1 ring-primary/20 shadow-[0_24px_60px_rgba(34,197,94,0.12)]' : ''
+        }`}
+      >
         <div className="mb-6">
           <h2 className="text-xl md:text-2xl font-bold text-foreground">
             Paso 3 de 4: Categorías {selectedBrand && `- ${selectedBrand}`}

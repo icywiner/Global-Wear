@@ -18,11 +18,12 @@ import {
   Globe,
   ChevronRight,
 } from 'lucide-react';
+import SmartImage from '@/components/ui/SmartImage';
+import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const { country, city } = useLocation();
-  const [imgError, setImgError] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
 
   const product = catalogProducts.find(p => p.id === id);
@@ -33,10 +34,6 @@ export default function ProductDetail() {
       .filter(o => Boolean(o.price) && Boolean(o.store) && Boolean(o.url))
     : [];
   const bestLocal = country && city ? getCatalogBestOffer(product.id, country.code, city.id) : null;
-
-  const categoryIcons: Record<string, string> = {
-    zapatillas: '👟', buzos: '🧥', camperas: '🧥', jeans: '👖', remeras: '👕',
-  };
 
   const getCountryName = (code: string) =>
     countries.find(c => c.code === code)?.name || code;
@@ -58,19 +55,17 @@ export default function ProductDetail() {
       <div className="grid md:grid-cols-2 gap-8 mb-12 bg-card border border-border rounded-3xl p-5 md:p-8 shadow-sm">
         {/* Images */}
         <div>
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl aspect-square overflow-hidden mb-3">
-            {!imgError && product.images[selectedImg] ? (
-              <img
-                src={product.images[selectedImg]}
-                alt={product.name}
-                onError={() => setImgError(true)}
-                className="w-full h-full object-contain p-6"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-8xl">
-                {categoryIcons[product.category] || '👕'}
-              </div>
-            )}
+          <div className="relative bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl aspect-square overflow-hidden mb-3">
+            <SmartImage
+              sources={[
+                product.images[selectedImg],
+                ...product.images.filter((_, index) => index !== selectedImg),
+              ]}
+              alt={product.name}
+              fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
+              imgClassName="w-full h-full object-contain p-6"
+              skeletonClassName="absolute inset-0 bg-secondary/40 animate-pulse"
+            />
           </div>
           {product.images.length > 1 && (
             <div className="flex gap-2">
@@ -79,17 +74,17 @@ export default function ProductDetail() {
                   key={i}
                   onClick={() => {
                     setSelectedImg(i);
-                    setImgError(false);
                   }}
-                  className={`w-16 h-16 rounded-lg bg-secondary/30 overflow-hidden border-2 transition-colors ${
+                  className={`relative w-16 h-16 rounded-lg bg-secondary/30 overflow-hidden border-2 transition-colors ${
                     selectedImg === i ? 'border-primary' : 'border-transparent'
                   }`}
                 >
-                  <img
-                    src={img}
+                  <SmartImage
+                    sources={[img]}
                     alt=""
-                    className="w-full h-full object-contain p-1"
-                    onError={e => ((e.target as HTMLImageElement).style.display = 'none')}
+                    fallbackSrc={buildPremiumPlaceholder(product.name)}
+                    imgClassName="w-full h-full object-contain p-1"
+                    skeletonClassName="absolute inset-0 bg-secondary/30 animate-pulse"
                   />
                 </button>
               ))}

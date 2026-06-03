@@ -98,7 +98,31 @@ function getCountryFlag(countryCode: string): string {
   return countries.find((country) => country.code === countryCode)?.flag || '';
 }
 
-function getAllLocations(): Array<{ countryCode: string; cityId: string; cityName: string; countryName: string; countryFlag: string }> {
+function getCountryCurrency(countryCode: string): { currency: string; currencySymbol: string } {
+  const country = countries.find((item) => item.code === countryCode);
+
+  return {
+    currency: country?.currency || 'USD',
+    currencySymbol: country?.currencySymbol || '$',
+  };
+}
+
+function fromUSD(price: number, currency: string): number {
+  const rates: Record<string, number> = { USD: 1, EUR: 1.08, ARS: 0.00094 };
+  const rate = rates[currency] || 1;
+  return price / rate;
+}
+
+function convertCurrency(price: number, fromCurrency: string, toCurrency: string): number {
+  if (fromCurrency === toCurrency) return price;
+
+  const usd = toUSD(price, fromCurrency);
+  const converted = fromUSD(usd, toCurrency);
+
+  return toCurrency === 'ARS' ? Math.round(converted) : Math.round(converted * 100) / 100;
+}
+
+function getAllLocations(): Array<{ countryCode: string; cityId: string; cityName: string; countryName: string; countryFlag: string; currency: string; currencySymbol: string }> {
   return countries.flatMap((country) =>
     country.cities.map((city) => ({
       countryCode: country.code,
@@ -106,6 +130,8 @@ function getAllLocations(): Array<{ countryCode: string; cityId: string; cityNam
       cityName: city.name,
       countryName: country.name,
       countryFlag: country.flag,
+      currency: country.currency,
+      currencySymbol: country.currencySymbol,
     }))
   );
 }
@@ -216,10 +242,11 @@ baseCatalogOffers.forEach((offer) => {
 
 function cloneOfferForLocation(
   offer: CatalogOffer,
-  location: { countryCode: string; cityId: string; cityName: string; countryName: string; countryFlag: string }
+  location: { countryCode: string; cityId: string; cityName: string; countryName: string; countryFlag: string; currency: string; currencySymbol: string }
 ): CatalogOffer {
   const storeKey = `${offer.store}|${location.countryCode}|${location.cityId}`;
   const coords = getStoreCoordinates(storeKey, location.cityId);
+  const normalizedPrice = convertCurrency(offer.price, offer.currency, location.currency);
 
   return {
     ...offer,
@@ -228,6 +255,9 @@ function cloneOfferForLocation(
     cityName: location.cityName,
     countryName: location.countryName,
     countryFlag: location.countryFlag,
+    price: normalizedPrice,
+    currency: location.currency,
+    currencySymbol: location.currencySymbol,
     storeKey,
     latitude: coords.latitude,
     longitude: coords.longitude,
@@ -276,6 +306,19 @@ export function getCatalogProductsForLocation(countryCode: string, cityId: strin
   return catalogProducts.filter((product) => {
     if (!locationIds.has(product.id)) return false;
     if (category && product.category !== category) return false;
+    return true;
+  });
+}
+
+export function getCatalogProductsForSelection(
+  countryCode: string,
+  cityId: string,
+  filters: { category?: Category | null; brand?: string | null } = {}
+): CatalogProduct[] {
+  const { category, brand } = filters;
+
+  return getCatalogProductsForLocation(countryCode, cityId, category ?? undefined).filter((product) => {
+    if (brand && product.brand !== brand) return false;
     return true;
   });
 }

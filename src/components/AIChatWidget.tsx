@@ -1,8 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import { useLocation } from '@/context/LocationContext';
+import { useBrand } from '@/context/BrandContext';
+import {
+  categories,
+  getCatalogBestOffer,
+  getCatalogProductsForSelection,
+  type Category,
+} from '@/data/catalog';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
+type VisibleProduct = {
+  name: string;
+  brand: string;
+  category: string;
+  price: number;
+  currency: string;
+  currencySymbol: string;
+};
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
@@ -12,21 +29,159 @@ const SUGGESTIONS = [
   'Compará precios de Adidas Samba entre países',
 ];
 
+const BRAND_ALIASES: Record<string, string> = {
+  'levis': "Levi's",
+  'levi': "Levi's",
+  'the north face': 'The North Face',
+  'new balance': 'New Balance',
+};
+
+const CATEGORY_ALIASES: Array<{ match: string[]; value: string }> = [
+  { match: ['zapatilla', 'zapatillas', 'sneaker', 'sneakers'], value: 'zapatillas' },
+  { match: ['remera', 'remeras', 't-shirt', 'camiseta'], value: 'remeras' },
+  { match: ['buzo', 'buzos', 'hoodie', 'hoodies'], value: 'buzos' },
+  { match: ['campera', 'camperas', 'jacket', 'jackets'], value: 'camperas' },
+  { match: ['jean', 'jeans'], value: 'jeans' },
+];
+
+function normalizeText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function formatMoney(product: VisibleProduct) {
+  return `${product.currencySymbol}${product.price.toLocaleString()} ${product.currency}`;
+}
+
+function inferBrand(query: string, fallbackBrand: string | null) {
+  const normalized = normalizeText(query);
+  const brands = ['Nike', 'Adidas', 'Puma', "Levi's", 'Converse', 'Vans', 'Champion', 'The North Face', 'New Balance'];
+  const found = brands.find((brand) => normalized.includes(normalizeText(brand)));
+  if (found) return found;
+
+  const alias = Object.entries(BRAND_ALIASES).find(([aliasName]) => normalized.includes(aliasName));
+  return alias?.[1] || fallbackBrand || null;
+}
+
+function inferCategory(query: string, fallbackCategory: string | null) {
+  const normalized = normalizeText(query);
+  const alias = CATEGORY_ALIASES.find((item) => item.match.some((word) => normalized.includes(word)));
+  return alias?.value || fallbackCategory || null;
+}
+
+function isAvailabilityQuestion(query: string) {
+  return /\b(hay|existe|disponible|disponibles|tienen)\b/i.test(query);
+}
+
+function isCheapestQuestion(query: string) {
+  return /\b(mas barata|más barata|mas barata|mas economica|más economica|más económica|menor precio|barata|barato)\b/i.test(query);
+}
+
+function getLocalAssistantReply(query: string, context: { countryName: string | null; cityName: string | null; currency: string | null; currencySymbol: string | null; brand: string | null; category: Category | null; visibleProducts: VisibleProduct[]; }) {
+  const brand = inferBrand(query, context.brand);
+  const category = inferCategory(query, context.category);
+  const products = context.visibleProducts.filter((item) => {
+    if (brand && item.brand !== brand) return false;
+    if (category && item.category !== category) return false;
+    return true;
+  });
+
+  if (products.length === 0) {
+    return 'No encontré productos disponibles para esa búsqueda en este momento.';
+  }
+
+  const cheapest = [...products].sort((a, b) => a.price - b.price)[0];
+  const mostExpensive = [...products].sort((a, b) => b.price - a.price)[0];
+
+  if (isCheapestQuestion(query)) {
+    const label = [category, brand].filter(Boolean).join(' ');
+    const location = [context.cityName, context.countryName].filter(Boolean).join(', ');
+    return `La ${label || 'opción'} más económica en ${location} es ${cheapest.name} por ${formatMoney(cheapest)}.`;
+  }
+
+  if (isAvailabilityQuestion(query)) {
+    const location = [context.cityName, context.countryName].filter(Boolean).join(', ');
+    const label = [category, brand].filter(Boolean).join(' ');
+    return `Sí, hay ${products.length} modelos de ${label || 'esa búsqueda'} en ${location}. El más barato es ${cheapest.name} (${formatMoney(cheapest)}) y el más caro es ${mostExpensive.name} (${formatMoney(mostExpensive)}).`;
+  }
+
+  if (products.length === 1) {
+    return `Encontré 1 producto: ${products[0].name} por ${formatMoney(products[0])}.`;
+  }
+
+  return `Encontré ${products.length} productos. El más barato es ${cheapest.name} (${formatMoney(cheapest)}) y el más caro es ${mostExpensive.name} (${formatMoney(mostExpensive)}).`;
+}
+
 export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { country, city } = useLocation();
+  const { selectedBrand } = useBrand();
+  const [searchParams] = useSearchParams();
+
+  const selectedCategory = useMemo(() => {
+    const value = searchParams.get('categoria');
+    return categories.some((item) => item.id === value) ? (value as Category) : null;
+  }, [searchParams]);
+
+  const appContext = useMemo(() => {
+    if (!country || !city) {
+      return {
+        countryName: null,
+        cityName: null,
+        currency: null,
+        currencySymbol: null,
+        brand: selectedBrand,
+        category: selectedCategory,
+        visibleProducts: [],
+      };
+    }
+
+    const visibleProducts = getCatalogProductsForSelection(country.code, city.id, {
+      brand: selectedBrand,
+      category: selectedCategory,
+    })
+      .map((product) => {
+        const offer = getCatalogBestOffer(product.id, country.code, city.id);
+        return offer
+          ? {
+              name: product.name,
+              brand: product.brand,
+              category: product.category,
+              price: offer.price,
+              currency: offer.currency,
+              currencySymbol: offer.currencySymbol,
+            }
+          : null;
+      })
+      .filter((item): item is VisibleProduct => Boolean(item))
+      .sort((a, b) => a.price - b.price);
+
+    return {
+      countryName: country.name,
+      cityName: city.name,
+      currency: country.currency,
+      currencySymbol: country.currencySymbol,
+      brand: selectedBrand,
+      category: selectedCategory,
+      visibleProducts,
+    };
+  }, [country, city, selectedBrand, selectedCategory]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = async (text: string) => {
-    if (!text.trim() || isLoading) return;
+    const queryText = text.trim();
+    if (!queryText || isLoading) return;
 
-    const userMsg: Msg = { role: 'user', content: text.trim() };
+    const userMsg: Msg = { role: 'user', content: queryText };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
@@ -34,13 +189,14 @@ export default function AIChatWidget() {
     let assistantSoFar = '';
 
     try {
+      const history = [...messages, userMsg];
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMsg] }),
+        body: JSON.stringify({ messages: history, context: appContext }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -91,10 +247,8 @@ export default function AIChatWidget() {
         }
       }
     } catch (e: any) {
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: e.message || 'Error al procesar tu consulta. Intentá de nuevo.' },
-      ]);
+      const fallbackReply = getLocalAssistantReply(queryText, appContext);
+      setMessages(prev => [...prev, { role: 'assistant', content: fallbackReply || e.message || 'No pude procesar tu consulta. Intentá de nuevo.' }]);
     } finally {
       setIsLoading(false);
     }

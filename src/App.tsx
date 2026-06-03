@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { useLocation } from './context/LocationContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AIChatWidget from './components/AIChatWidget';
@@ -9,6 +10,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 export default function App() {
+  const { country, city } = useLocation();
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -22,7 +25,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
-      <AIChatWidget />
+      {country && city && <AIChatWidget />}
     </div>
   );
 }

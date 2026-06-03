@@ -8,7 +8,7 @@ import { useBrand } from '@/context/BrandContext';
 import {
   categories,
   getCatalogBestOffer,
-  getCatalogProductsForLocation,
+  getCatalogProductsForSelection,
   getCatalogStats,
   getCatalogSuggestions,
   getStorePoints,
@@ -49,11 +49,10 @@ function ProductRow({ index, style, data }: ListChildComponentProps<RowData>) {
 
 export default function ProductsGrid() {
   const { country, city } = useLocation();
-  const { selectedBrand: contextBrand } = useBrand();
+  const { selectedBrand: contextBrand, selectBrand } = useBrand();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedBrand, setSelectedBrand] = useState('all');
   const [query, setQuery] = useState('');
   const [selectedStoreKey, setSelectedStoreKey] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'low' | 'high' | 'popular'>('popular');
@@ -90,14 +89,12 @@ export default function ProductsGrid() {
   const availableProducts = useMemo(
     () => {
       if (!country || !city) return [];
-      const allProducts = getCatalogProductsForLocation(country.code, city.id);
-      // Filter by selected brand from context
-      if (contextBrand) {
-        return allProducts.filter((p) => p.brand === contextBrand);
-      }
-      return allProducts;
+      return getCatalogProductsForSelection(country.code, city.id, {
+        category: selectedCategory,
+        brand: contextBrand,
+      });
     },
-    [country?.code, city?.id, contextBrand]
+    [country?.code, city?.id, selectedCategory, contextBrand]
   );
 
   const suggestionList = useMemo(
@@ -119,8 +116,6 @@ export default function ProductsGrid() {
 
     const items: RenderItem[] = availableProducts
       .filter((product) => {
-        if (selectedCategory && !hasQuery && product.category !== selectedCategory) return false;
-        if (selectedBrand !== 'all' && product.brand !== selectedBrand) return false;
         if (hasQuery) {
           const categoryLabel = categoryLabelMap.get(product.category) || product.category;
           const match = normalize(`${product.name} ${product.brand} ${product.category} ${categoryLabel}`).includes(normalizedQuery);
@@ -161,11 +156,15 @@ export default function ProductsGrid() {
     priceRange,
     query,
     categoryLabelMap,
-    selectedBrand,
     selectedCategory,
     selectedStoreKey,
     sortBy,
   ]);
+
+  useEffect(() => {
+    setSelectedStoreKey(null);
+    setSelectedProductId(null);
+  }, [country?.code, city?.id, contextBrand, selectedCategory]);
 
   const storePoints = useMemo(() => {
     if (!country || !city) return [];
@@ -282,10 +281,11 @@ export default function ProductsGrid() {
                   <label className="text-xs font-medium text-muted-foreground">
                     <span className="mb-1 inline-flex items-center gap-1"><SlidersHorizontal className="w-3 h-3" /> Marca</span>
                     <select
-                      value={selectedBrand}
+                          value={contextBrand || 'all'}
                       onChange={(event) => {
-                        setSelectedBrand(event.target.value);
+                            selectBrand(event.target.value === 'all' ? null : event.target.value);
                         setSelectedStoreKey(null);
+                            setSelectedProductId(null);
                       }}
                       className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
                     >

@@ -1,3 +1,5 @@
+import { countries } from '@/data/locations';
+
 export type Category = 'zapatillas' | 'buzos' | 'camperas' | 'jeans' | 'remeras';
 
 export interface Product {
@@ -118,12 +120,12 @@ const rawProducts: Product[] = [
   { id: 'new-balance-essentials-tee', name: 'Essentials Stacked Logo Tee', brand: 'New Balance', category: 'remeras', description: 'New Balance Essentials, remera con logo NB apilado.', images: ['https://nb.scene7.com/is/image/NB/mt31541bk_nb_02_i?$pdpflexf2$&wid=800&hei=800'] },
   { id: 'vans-classic-tee', name: 'Classic Logo Tee', brand: 'Vans', category: 'remeras', description: 'Vans Classic, remera con logo Off The Wall.', images: ['https://images.vans.com/is/image/VansBrand/VN000GGGY28-HERO?wid=800'] },
   { id: 'tnf-simple-dome-tee', name: 'Simple Dome Tee', brand: 'The North Face', category: 'remeras', description: 'The North Face Simple Dome, remera con logo half dome.', images: ['https://images.thenorthface.com/is/image/TheNorthFace/NF0A2TX5_JK3_hero?wid=780&hei=906'] },
-  { id: 'nike-air-max-plus', name: 'Air Max Plus', brand: 'Nike', category: 'zapatillas', description: 'Nike Air Max Plus, una silueta icónica con estilo agresivo y Air visible.', images: ['https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/a1d07ab6-41b2-4033-8233-b1c246f9e8d1/AIR+MAX+97.png'] },
-  { id: 'nike-p-6000', name: 'P-6000', brand: 'Nike', category: 'zapatillas', description: 'Nike P-6000, running retro con estética de pista y capas técnicas.', images: ['https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/awjogtdnqxniqqk0wpgf/AIR+MAX+270.png'] },
-  { id: 'adidas-handball-spezial', name: 'Handball Spezial', brand: 'Adidas', category: 'zapatillas', description: 'Adidas Handball Spezial, clásico terrace con gamuza y perfil bajo.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/1fcf1b7c7f6e4e12a268af2a0104b21d_9366/Gazelle_Shoes_Black_BB5476_01_standard.jpg'] },
-  { id: 'adidas-firebird-track-jacket', name: 'Firebird Track Jacket', brand: 'Adidas', category: 'camperas', description: 'Adidas Firebird, campera de tracksuit clásica con 3 rayas.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b7b80e06d5c14eefa9c6af0800a0c6c0_9366/Adicolor_Classics_SST_Track_Jacket_Black_IK7025_01_laydown.jpg'] },
-  { id: 'puma-palermo', name: 'Palermo', brand: 'Puma', category: 'zapatillas', description: 'Puma Palermo, zapatilla terrace con perfil limpio y base vintage.', images: ['https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/374915/01/sv01/fnd/PNA/fmt/png/Suede-Classic-XXI-Sneakers'] },
-  { id: 'puma-t7-track-jacket', name: 'T7 Track Jacket', brand: 'Puma', category: 'camperas', description: 'Puma T7 Track Jacket, diseño deportivo clásico con paneles laterales.', images: ['https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/587307/01/sv01/fnd/PNA/fmt/png/Essentials-Windbreaker'] },
+  { id: 'nike-air-max-plus', name: 'Air Max Plus', brand: 'Nike', category: 'zapatillas', description: 'Nike Air Max Plus, una silueta icónica con estilo agresivo y Air visible.', images: ['https://static.nike.com/a/images/t_web_pw_592_v2/f_auto/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/c7700713-3ed2-444c-9ff2-80105d9cdfb2/NIKE+AIR+MAX+PLUS.png'] },
+  { id: 'nike-p-6000', name: 'P-6000', brand: 'Nike', category: 'zapatillas', description: 'Nike P-6000, running retro con estética de pista y capas técnicas.', images: ['https://static.nike.com/a/images/t_web_pw_592_v2/f_auto/u_9ddf04c7-2a9a-4d76-add1-d15af8f0263d,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/mcdrf7uxgwnem8l0sv0q/NIKE+P-6000.png'] },
+  { id: 'adidas-handball-spezial', name: 'Handball Spezial', brand: 'Adidas', category: 'zapatillas', description: 'Adidas Handball Spezial, clásico terrace con gamuza y perfil bajo.', images: ['https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/553de808306744318889e4f9ae2c88a1_9366/ADIDAS_LIBERTY_LONDON_HANDBALL_SPEZIAL_SHOES_White_JQ2010_00_plp_standard.jpg'] },
+  { id: 'adidas-firebird-track-jacket', name: 'Firebird Track Jacket', brand: 'Adidas', category: 'camperas', description: 'Adidas Firebird, campera de tracksuit clásica con 3 rayas.', images: ['https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/3fda809117df4d83a8cad870a47ea6d9_9366/Firebird_Track_Jacket_Black_KD8312_000_plp_model.jpg'] },
+  { id: 'puma-palermo', name: 'Palermo', brand: 'Puma', category: 'zapatillas', description: 'Puma Palermo, zapatilla terrace con perfil limpio y base vintage.', images: ['https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_300,h_300/global/396464/01/sv01/fnd/PNA/fmt/png/Palermo-Leather-Sneakers'] },
+  { id: 'puma-t7-track-jacket', name: 'T7 Track Jacket', brand: 'Puma', category: 'camperas', description: 'Puma T7 Track Jacket, diseño deportivo clásico con paneles laterales.', images: ["https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_300,h_300/global/629587/01/mod01/fnd/PNA/fmt/png/T7-Men's-Track-Jacket"] },
   { id: 'converse-chuck-70-ox', name: 'Chuck 70 Ox', brand: 'Converse', category: 'zapatillas', description: 'Converse Chuck 70 Ox, versión baja del ícono atemporal.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw4fa12e17/images/a_107/162050C_A_107X1.jpg'] },
   { id: 'converse-run-star-hike', name: 'Run Star Hike', brand: 'Converse', category: 'zapatillas', description: 'Converse Run Star Hike, plataforma moderna con suela dentada.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw7b917487/images/a_107/171327C_A_107X1.jpg'] },
   { id: 'vans-knu-skool', name: 'Knu Skool', brand: 'Vans', category: 'zapatillas', description: 'Vans Knu Skool, reinterpretación chunky del skate clásico.', images: ['https://images.vans.com/is/image/VansBrand/VN000D3HY28-HERO?wid=800'] },
@@ -666,11 +668,32 @@ export const offers: StoreOffer[] = [
 // ============================================================
 
 export function getOffersForProduct(productId: string, countryCode?: string, cityId?: string): StoreOffer[] {
+  const targetCurrency = countryCode ? countries.find((country) => country.code === countryCode)?.currency : undefined;
+  const targetSymbol = countryCode ? countries.find((country) => country.code === countryCode)?.currencySymbol : undefined;
+
   return offers.filter(o => {
     if (o.productId !== productId) return false;
     if (countryCode && o.countryCode !== countryCode) return false;
     if (cityId && o.cityId !== cityId) return false;
     return o.inStock;
+  }).map((offer) => {
+    if (!targetCurrency || !targetSymbol) return offer;
+
+    if (offer.currency === targetCurrency) {
+      return offer;
+    }
+
+    const usd = toUSD(offer.price, offer.currency);
+    const rates: Record<string, number> = { USD: 1, EUR: 1.08, ARS: 0.00094 };
+    const rate = rates[targetCurrency] || 1;
+    const converted = usd / rate;
+
+    return {
+      ...offer,
+      price: targetCurrency === 'ARS' ? Math.round(converted) : Math.round(converted * 100) / 100,
+      currency: targetCurrency,
+      currencySymbol: targetSymbol,
+    };
   });
 }
 

@@ -103,22 +103,9 @@ export default function Register() {
               </div>
 
               <div className="mt-10 rounded-[1.5rem] border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Confían en nosotros</p>
-                <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-200">
-                  <div className="flex items-center gap-2 rounded-full bg-slate-900/75 px-3 py-2 text-white">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400 text-sm font-semibold">A</span>
-                    ABC
-                  </div>
-                  <div className="flex items-center gap-2 rounded-full bg-slate-900/75 px-3 py-2 text-white">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400 text-sm font-semibold">B</span>
-                    DEF
-                  </div>
-                  <div className="flex items-center gap-2 rounded-full bg-slate-900/75 px-3 py-2 text-white">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400 text-sm font-semibold">C</span>
-                    GHI
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-slate-400">+2500 usuarios activos</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Comunidad</p>
+                <p className="mt-4 text-2xl font-semibold text-white">+2500 usuarios activos</p>
+                <p className="mt-2 text-sm text-slate-400">Confían en nosotros</p>
               </div>
             </div>
           </aside>

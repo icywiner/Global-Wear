@@ -16,7 +16,7 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const hasLocation = Boolean(country && city);
 

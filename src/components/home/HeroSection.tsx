@@ -5,6 +5,8 @@ import { Search, X, TrendingUp, ShieldCheck, Sparkles } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { products } from '@/data/products';
 import SmartImage from '@/components/ui/SmartImage';
+import { getProductImageSources } from '@/lib/imageSources';
+import { logActivity } from '@/lib/activity';
 
 const quickSearches = ['Nike Air Force 1', 'Adidas Samba', "Levi's 501", 'Air Max 90', 'New Balance 574', 'Vans Old Skool', 'Converse Chuck 70', 'Puma Suede'];
 
@@ -34,6 +36,7 @@ export default function HeroSection() {
 
   const handleSearch = (q: string) => {
     if (q.trim()) {
+      void logActivity('product_search', { query: q.trim().slice(0, 120), source: 'hero' });
       navigate(`/explorar?q=${encodeURIComponent(q.trim())}`);
       setQuery('');
       setShowSuggestions(false);
@@ -110,7 +113,7 @@ export default function HeroSection() {
                   >
                     <div className="w-9 h-9 rounded-lg bg-secondary/50 p-1 overflow-hidden shrink-0">
                       <SmartImage
-                        sources={p.images}
+                        sources={getProductImageSources(p)}
                         alt={p.name}
                         imgClassName="w-full h-full object-contain"
                         skeletonClassName="w-full h-full rounded bg-slate-200/70 animate-pulse"

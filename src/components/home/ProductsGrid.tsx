@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useBrand } from '@/context/BrandContext';
+import { logActivity } from '@/lib/activity';
 import {
   categories,
   getCatalogBestOffer,
@@ -85,6 +86,11 @@ export default function ProductsGrid() {
       setSelectedCategory(category);
     }
   }, []);
+
+  useEffect(() => {
+    if (!selectedCategory) return;
+    void logActivity('category_select', { category: selectedCategory });
+  }, [selectedCategory]);
 
   const availableProducts = useMemo(
     () => {

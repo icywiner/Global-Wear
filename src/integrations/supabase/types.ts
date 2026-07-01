@@ -18,22 +18,64 @@ export type Database = {
         Row: {
           created_at: string
           display_name: string
+          deleted_at: string | null
+          email: string
+          is_admin: boolean
+          is_blocked: boolean
           id: string
+          last_sign_in_at: string | null
+          login_count: number
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           display_name?: string
+          deleted_at?: string | null
+          email?: string
+          is_admin?: boolean
+          is_blocked?: boolean
           id?: string
+          last_sign_in_at?: string | null
+          login_count?: number
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           display_name?: string
+          deleted_at?: string | null
+          email?: string
+          is_admin?: boolean
+          is_blocked?: boolean
           id?: string
+          last_sign_in_at?: string | null
+          login_count?: number
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      activity_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
           user_id?: string
         }
         Relationships: []

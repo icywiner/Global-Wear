@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { logActivity } from '@/lib/activity';
 
 interface BrandContextType {
   selectedBrand: string | null;
@@ -12,6 +13,7 @@ export function BrandProvider({ children }: { children: ReactNode }) {
 
   const selectBrand = (brand: string | null) => {
     setSelectedBrand(brand);
+    void logActivity('brand_select', { brand: brand || '' });
   };
 
   return (

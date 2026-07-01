@@ -6,7 +6,7 @@ import { getOffersForProduct, getBestOffer, toUSD } from '@/data/products';
 import { useLocation } from '@/context/LocationContext';
 import { countries } from '@/data/locations';
 import SmartImage from '@/components/ui/SmartImage';
-import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
+import { getProductImageSources } from '@/lib/imageSources';
 
 interface Props {
   product: Product;
@@ -36,9 +36,8 @@ export default function ProductCard({ product }: Props) {
       {/* Image */}
       <div className="relative aspect-square bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
         <SmartImage
-          sources={product.images}
+          sources={getProductImageSources(product)}
           alt={product.name}
-          fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
           imgClassName="w-full h-full object-contain p-4 group-hover:scale-105"
           skeletonClassName="absolute inset-0 bg-secondary/40 animate-pulse"
         />

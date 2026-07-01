@@ -2,7 +2,7 @@ import { ExternalLink, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { CatalogOffer, CatalogProduct } from '@/data/catalog';
 import SmartImage from '@/components/ui/SmartImage';
-import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
+import { getProductImageSources } from '@/lib/imageSources';
 
 interface MarketplaceProductRowProps {
   product: CatalogProduct;
@@ -27,9 +27,8 @@ export default function MarketplaceProductRow({
       <div className="grid grid-cols-[132px_1fr] md:grid-cols-[168px_1fr] gap-4 h-full">
         <div className="relative rounded-2xl bg-secondary/40 overflow-hidden">
           <SmartImage
-            sources={product.images}
+            sources={getProductImageSources(product)}
             alt={product.name}
-            fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
             imgClassName="h-full w-full object-contain p-2"
             skeletonClassName="absolute inset-0 animate-pulse bg-gradient-to-br from-secondary to-secondary/60"
           />

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { countries, type Country, type City } from '@/data/locations';
+import { logActivity } from '@/lib/activity';
 
 interface LocationState {
   country: Country | null;
@@ -34,12 +35,14 @@ export function LocationProvider({ children }: { children: ReactNode }) {
     setCountryState(c);
     setCityState(null);
     localStorage.setItem('gw-location', JSON.stringify({ countryCode: c.code }));
+    void logActivity('location_select', { country: c.name, countryCode: c.code, city: '' });
   };
 
   const setCity = (c: City) => {
     setCityState(c);
     if (country) {
       localStorage.setItem('gw-location', JSON.stringify({ countryCode: country.code, cityId: c.id }));
+      void logActivity('location_select', { country: country.name, countryCode: country.code, city: c.name, cityId: c.id });
     }
   };
 

@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 import type { Category } from '@/data/products';
 import SmartImage from '@/components/ui/SmartImage';
-import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
 import { getCatalogProductsForLocation } from '@/data/catalog';
 import { useLocation } from '@/context/LocationContext';
 import { useBrand } from '@/context/BrandContext';
+import { getCategoryImageSources } from '@/lib/imageSources';
 
 const categoryCards: Array<{
   id: Category;
@@ -155,9 +155,8 @@ function CategoryCard({
 
         <div className="relative h-[122px] w-full">
           <SmartImage
-            sources={card.images}
+              sources={getCategoryImageSources(card.id)}
             alt={card.title}
-            fallbackSrc={buildPremiumPlaceholder(card.title)}
             imgClassName="absolute right-0 bottom-0 h-full w-full object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,0.32)] group-hover:scale-105"
             skeletonClassName="absolute inset-0 rounded-2xl bg-white/20 animate-pulse"
           />

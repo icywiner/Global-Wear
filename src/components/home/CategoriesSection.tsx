@@ -22,8 +22,8 @@ const categoryCards: Array<{
     subtitle: 'Running, lifestyle y retro',
     gradient: 'from-orange-500/95 via-red-500/85 to-rose-700/90',
     images: [
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80',
       'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/7bee4ee3e78a4e4a8608a8bf0117cf62_9366/Samba_OG_Shoes_White_B75806_01_standard.jpg',
+      'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/350e7f3a-979a-402b-9396-a4c55ee2ea43/AIR+FORCE+1+%2707.png',
     ],
   },
   {
@@ -32,7 +32,7 @@ const categoryCards: Array<{
     subtitle: 'Basicos premium y performance',
     gradient: 'from-cyan-400/90 via-sky-500/85 to-blue-700/90',
     images: [
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1200&q=80',
+      'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa1b5b1a-27b5-47f6-b498-7ea080f5819b/M+NSW+TEE+ICON+FUTURA.png',
       'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b4a04e63c79149228e32ae0a01517813_9366/Trefoil_Tee_Black_IU2421_01_laydown.jpg',
     ],
   },
@@ -44,7 +44,7 @@ const categoryCards: Array<{
     textureClass: 'before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.16)_1px,transparent_1px)] before:bg-[size:8px_8px] before:opacity-35',
     images: [
       'https://lsco.scene7.com/is/image/lsco/005010114-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
-      'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=1200&q=80',
+      'https://lsco.scene7.com/is/image/lsco/045115279-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
     ],
   },
   {
@@ -53,8 +53,8 @@ const categoryCards: Array<{
     subtitle: 'Confort tecnico y urbano',
     gradient: 'from-emerald-500/95 via-teal-500/85 to-cyan-700/90',
     images: [
-      'https://images.unsplash.com/photo-1612423284934-2850a4ea6b0f?auto=format&fit=crop&w=1200&q=80',
-      'https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/586688/01/sv01/fnd/PNA/fmt/png/Essentials-Big-Logo-Hoodie',
+      'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5a4c56c0-c8a4-4ed5-9fdd-5e3f7be8fb2b/TECH+FLEECE+FZ+HOODIE.png',
+      'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b0c2e8a6e89a4d3f9f65af2a01517d60_9366/Trefoil_Hoodie_Black_DT7964_01_laydown.jpg',
     ],
   },
   {
@@ -64,7 +64,7 @@ const categoryCards: Array<{
     gradient: 'from-slate-600/95 via-zinc-700/85 to-black/90',
     images: [
       'https://images.thenorthface.com/is/image/TheNorthFace/NF0A3C8D_JK3_hero?wid=780&hei=906',
-      'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=1200&q=80',
+      'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/d7bbded4-fb86-4823-8e03-7c3cddfc823e/M+NK+WR+JKT.png',
     ],
   },
 ];

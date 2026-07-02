@@ -25,6 +25,26 @@ export interface StoreOffer {
   lastUpdated: string;
 }
 
+const OFFICIAL_IMAGE_HOSTS = new Set([
+  'static.nike.com',
+  'assets.adidas.com',
+  'images.puma.com',
+  'nb.scene7.com',
+  'images.champion.com',
+  'images.thenorthface.com',
+  'lsco.scene7.com',
+  'www.converse.com',
+  'images.vans.com',
+]);
+
+function isOfficialImageSource(source: string): boolean {
+  try {
+    return OFFICIAL_IMAGE_HOSTS.has(new URL(source).hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
 export const categories: { id: Category; label: string; icon: string; image: string }[] = [
   { id: 'zapatillas', label: 'Zapatillas', icon: '👟', image: 'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/350e7f3a-979a-402b-9396-a4c55ee2ea43/AIR+FORCE+1+%2707.png' },
   { id: 'remeras', label: 'Remeras', icon: '👕', image: 'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa1b5b1a-27b5-47f6-b498-7ea080f5819b/M+NSW+TEE+ICON+FUTURA.png' },
@@ -182,7 +202,7 @@ const brandFallbackImages: Record<string, string[]> = {
   ],
   Converse: [
     'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw4fa12e17/images/a_107/162050C_A_107X1.jpg',
-    'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw3456test/images/a_107/10023876_A_107X1.jpg',
+    'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw0a451821/images/a_107/M9160_A_107X1.jpg',
   ],
   Vans: [
     'https://images.vans.com/is/image/VansBrand/VN000D3HY28-HERO?wid=800',
@@ -210,14 +230,16 @@ function buildProductImages(product: Product, usedPrimaryImages: Set<string>): s
   ].filter(Boolean);
 
   const uniqueCandidates = [...new Set(candidates)];
-  const primaryImage = uniqueCandidates.find((image) => !usedPrimaryImages.has(image)) ?? uniqueCandidates[0];
+  const officialCandidates = uniqueCandidates.filter(isOfficialImageSource);
+  const prioritizedCandidates = officialCandidates.length > 0 ? officialCandidates : uniqueCandidates;
+  const primaryImage = prioritizedCandidates.find((image) => !usedPrimaryImages.has(image)) ?? prioritizedCandidates[0];
 
   if (primaryImage) {
     usedPrimaryImages.add(primaryImage);
   }
 
   return primaryImage
-    ? [primaryImage, ...uniqueCandidates.filter((image) => image !== primaryImage)]
+    ? [primaryImage, ...prioritizedCandidates.filter((image) => image !== primaryImage)]
     : [];
 }
 

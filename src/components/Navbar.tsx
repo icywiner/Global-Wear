@@ -1,21 +1,22 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Globe, ChevronDown, User, LogOut, Compass, ArrowLeft } from 'lucide-react';
+import { Search, Globe, ChevronDown, User, LogOut, Compass, ArrowLeft, Shield } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
 import { catalogProducts } from '@/data/catalog';
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { logActivity } from '@/lib/activity';
 
 export default function Navbar() {
   const { country, city, setCountry, setCity, resetLocation } = useLocation();
-  const { user, displayName, signOut, loading } = useAuth();
+  const { user, displayName, signOut, loading, isAdmin } = useAuth();
   const [countryOpen, setCountryOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const hasLocation = Boolean(country && city);
 
@@ -40,6 +41,7 @@ export default function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      void logActivity('product_search', { query: searchQuery.trim().slice(0, 120), source: 'navbar' });
       navigate(`/explorar?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
       setSearchOpen(false);
@@ -228,6 +230,16 @@ export default function Navbar() {
                       <LogOut className="w-4 h-4" />
                       Cerrar sesión
                     </button>
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-secondary/60 flex items-center gap-2 transition-colors"
+                      >
+                        <Shield className="w-4 h-4" />
+                        Panel admin
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>

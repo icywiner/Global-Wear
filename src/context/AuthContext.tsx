@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import { logActivity } from '@/lib/activity';
 
 interface AuthState {
   user: User | null;
   session: Session | null;
   displayName: string;
+  isAdmin: boolean;
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -18,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [displayName, setDisplayName] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setTimeout(() => fetchProfile(session.user.id), 0);
       } else {
         setDisplayName('');
+        setIsAdmin(false);
       }
       setLoading(false);
     });
@@ -35,7 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setIsAdmin(false);
+      }
       setLoading(false);
     });
 
@@ -43,34 +51,91 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function fetchProfile(userId: string) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
-      .select('display_name')
+      .select('display_name, is_admin, is_blocked')
       .eq('user_id', userId)
       .single();
-    if (data) setDisplayName(data.display_name || '');
+    if (error || !data) return;
+
+    if (data.is_blocked) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setDisplayName('');
+      setIsAdmin(false);
+      return;
+    }
+
+    setDisplayName(data.display_name || '');
+    setIsAdmin(Boolean(data.is_admin));
+  }
+
+  function friendlyAuthError(message: string) {
+    const normalized = message.toLowerCase();
+    if (normalized.includes('invalid login credentials')) return 'Credenciales inválidas. Revisá tu correo y contraseña.';
+    if (normalized.includes('email not confirmed')) return 'Confirmá tu email antes de iniciar sesión.';
+    if (normalized.includes('blocked')) return 'Tu cuenta está bloqueada. Contactá al administrador.';
+    return message;
   }
 
   const signUp = async (email: string, password: string, name: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: name } },
+      options: {
+        data: { display_name: name },
+        emailRedirectTo: `${window.location.origin}/`,
+      },
     });
-    return { error: error?.message ?? null };
+    if (!error) {
+      void logActivity('auth_register', { email });
+    }
+    return { error: error?.message ? friendlyAuthError(error.message) : null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      return { error: friendlyAuthError(error.message) };
+    }
+
+    if (data.session?.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_blocked, is_admin, display_name, login_count')
+        .eq('user_id', data.session.user.id)
+        .single();
+
+      if (profile?.is_blocked) {
+        await supabase.auth.signOut();
+        return { error: 'Tu cuenta está bloqueada. Contactá al administrador.' };
+      }
+
+      await supabase
+        .from('profiles')
+        .update({
+          last_sign_in_at: new Date().toISOString(),
+          login_count: (profile?.login_count || 0) + 1,
+        })
+        .eq('user_id', data.session.user.id);
+
+      setIsAdmin(Boolean(profile?.is_admin));
+      setDisplayName(profile?.display_name || data.session.user.user_metadata?.display_name || '');
+      void logActivity('auth_login', { email });
+    }
+
+    return { error: null };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    void logActivity('auth_logout', {});
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, displayName, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, displayName, isAdmin, loading, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

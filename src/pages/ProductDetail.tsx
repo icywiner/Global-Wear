@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
 import {
@@ -19,7 +19,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import SmartImage from '@/components/ui/SmartImage';
-import { buildPremiumPlaceholder } from '@/lib/imagePlaceholders';
+import { getProductImageSources } from '@/lib/imageSources';
+import { logActivity } from '@/lib/activity';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +29,12 @@ export default function ProductDetail() {
 
   const product = catalogProducts.find(p => p.id === id);
   if (!product) return <Navigate to="/" replace />;
+
+  const productImages = useMemo(() => getProductImageSources(product), [product]);
+
+  useEffect(() => {
+    void logActivity('product_view', { productId: product.id, brand: product.brand, category: product.category });
+  }, [product.id, product.brand, product.category]);
 
   const localOffers = country && city
     ? getCatalogOffersForProduct(product.id, country.code, city.id)
@@ -57,19 +64,15 @@ export default function ProductDetail() {
         <div>
           <div className="relative bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl aspect-square overflow-hidden mb-3">
             <SmartImage
-              sources={[
-                product.images[selectedImg],
-                ...product.images.filter((_, index) => index !== selectedImg),
-              ]}
+              sources={productImages[selectedImg] ? [productImages[selectedImg], ...productImages.filter((_, index) => index !== selectedImg)] : productImages}
               alt={product.name}
-              fallbackSrc={buildPremiumPlaceholder(`${product.brand} ${product.name}`)}
               imgClassName="w-full h-full object-contain p-6"
               skeletonClassName="absolute inset-0 bg-secondary/40 animate-pulse"
             />
           </div>
-          {product.images.length > 1 && (
+          {productImages.length > 1 && (
             <div className="flex gap-2">
-              {product.images.map((img, i) => (
+              {productImages.slice(0, 4).map((img, i) => (
                 <button
                   key={i}
                   onClick={() => {
@@ -80,9 +83,8 @@ export default function ProductDetail() {
                   }`}
                 >
                   <SmartImage
-                    sources={[img]}
+                    sources={[img, ...productImages.filter((_, index) => index !== i)]}
                     alt=""
-                    fallbackSrc={buildPremiumPlaceholder(product.name)}
                     imgClassName="w-full h-full object-contain p-1"
                     skeletonClassName="absolute inset-0 bg-secondary/30 animate-pulse"
                   />

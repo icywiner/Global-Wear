@@ -8,6 +8,7 @@ import Browse from './pages/Browse';
 import ProductDetail from './pages/ProductDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Admin from './pages/Admin';
 
 export default function App() {
   const { country, city } = useLocation();
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/producto/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
       <Footer />

@@ -74,9 +74,9 @@ const rawProducts: Product[] = [
   { id: 'adidas-stan-smith', name: 'Stan Smith', brand: 'Adidas', category: 'zapatillas', description: 'Adidas Stan Smith, el clásico minimalista de tenis.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/68ae7ea7849b43eca70aac1e00f5146d_9366/Stan_Smith_Shoes_White_FX5502_01_standard.jpg'] },
   { id: 'adidas-campus-00s', name: 'Campus 00s', brand: 'Adidas', category: 'zapatillas', description: 'Adidas Campus 00s, versión actualizada del clásico universitario.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/93e9d9f7c35d4fb9b4d0af9d00e8fc86_9366/Campus_00s_Shoes_Black_HQ8708_01_standard.jpg'] },
   { id: 'adidas-forum-low', name: 'Forum Low', brand: 'Adidas', category: 'zapatillas', description: 'Adidas Forum Low, estilo basketball retro con correa icónica.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/15692b99f1b34cc09f6bac3e00f65de4_9366/Forum_Low_Shoes_White_FY7756_01_standard.jpg'] },
-  { id: 'converse-chuck-70', name: 'Chuck 70 Hi', brand: 'Converse', category: 'zapatillas', description: 'Converse Chuck 70, el ícono del streetwear.', images: ['https://cdn.shopify.com/s/files/1/0577/8915/2547/products/converse-chuck-70-hi.jpg?v=1631234567&width=800'] },
-  { id: 'converse-chuck-taylor', name: 'Chuck Taylor All Star', brand: 'Converse', category: 'zapatillas', description: 'La zapatilla más icónica de todos los tiempos.', images: ['https://cdn.shopify.com/s/files/1/0577/8915/2547/products/converse-chuck-taylor.jpg?v=1631234567&width=800'] },
-  { id: 'converse-one-star', name: 'One Star Pro', brand: 'Converse', category: 'zapatillas', description: 'Converse One Star Pro, diseño limpio de skate con estrella lateral.', images: ['https://cdn.shopify.com/s/files/1/0577/8915/2547/products/converse-one-star-pro.jpg?v=1631234567&width=800'] },
+  { id: 'converse-chuck-70', name: 'Chuck 70 Hi', brand: 'Converse', category: 'zapatillas', description: 'Converse Chuck 70, el ícono del streetwear.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw10f77af3/images/a_107/162050C_A_107X1.jpg'] },
+  { id: 'converse-chuck-taylor', name: 'Chuck Taylor All Star', brand: 'Converse', category: 'zapatillas', description: 'La zapatilla más icónica de todos los tiempos.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw94bdf718/images/a_107/M9160_A_107X1.jpg'] },
+  { id: 'converse-one-star', name: 'One Star Pro', brand: 'Converse', category: 'zapatillas', description: 'Converse One Star Pro, diseño limpio de skate con estrella lateral.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw8efc92b7/images/a_107/171327C_A_107X1.jpg'] },
   { id: 'vans-old-skool', name: 'Old Skool', brand: 'Vans', category: 'zapatillas', description: 'Vans Old Skool, la zapatilla clásica de skate.', images: ['https://images.vans.com/is/image/VansBrand/VN000D3HY28-HERO?wid=800'] },
   { id: 'vans-sk8-hi', name: 'Sk8-Hi', brand: 'Vans', category: 'zapatillas', description: 'Vans Sk8-Hi, la bota alta clásica del skate.', images: ['https://images.vans.com/is/image/VansBrand/VN000D5IB8C-HERO?wid=800'] },
   { id: 'vans-authentic', name: 'Authentic', brand: 'Vans', category: 'zapatillas', description: 'Vans Authentic, la zapatilla original de la marca desde 1966.', images: ['https://images.vans.com/is/image/VansBrand/VN000EE3BLK-HERO?wid=800'] },
@@ -135,7 +135,7 @@ const rawProducts: Product[] = [
   { id: 'adidas-linear-tee', name: 'Essentials Linear Logo Tee', brand: 'Adidas', category: 'remeras', description: 'Adidas Linear Logo, remera minimalista con logo lineal.', images: ['https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/4f6f2e3f0b5445bc9c66af6a01338713_9366/Essentials_Linear_Logo_Tee_Black_GL0057_01_laydown.jpg'] },
   { id: 'champion-script-tee', name: 'Script Logo Tee', brand: 'Champion', category: 'remeras', description: 'Remera Champion con logo script bordado.', images: ['https://images.champion.com/is/image/champion/GT19_045_front?wid=800&hei=800'] },
   { id: 'champion-heritage-tee', name: 'Heritage Tee', brand: 'Champion', category: 'remeras', description: 'Champion Heritage, remera de algodón con logo C en el pecho.', images: ['https://images.champion.com/is/image/champion/GT23H_806_front?wid=800&hei=800'] },
-  { id: 'converse-star-chevron-tee', name: 'Star Chevron Tee', brand: 'Converse', category: 'remeras', description: 'Remera Converse con logo Star Chevron clásico.', images: ['https://cdn.shopify.com/s/files/1/0577/8915/2547/products/converse-star-chevron-tee.jpg?v=1631234567&width=800'] },
+  { id: 'converse-star-chevron-tee', name: 'Star Chevron Tee', brand: 'Converse', category: 'remeras', description: 'Remera Converse con logo Star Chevron clásico.', images: ['https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw33049ac9/images/a_107/10023876-A01_A_107X1.jpg'] },
   { id: 'puma-ess-logo-tee', name: 'Essentials Logo Tee', brand: 'Puma', category: 'remeras', description: 'Puma Essentials Logo, remera básica con logo de gato.', images: ['https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/586666/01/sv01/fnd/PNA/fmt/png/Essentials-Logo-Tee'] },
   { id: 'new-balance-essentials-tee', name: 'Essentials Stacked Logo Tee', brand: 'New Balance', category: 'remeras', description: 'New Balance Essentials, remera con logo NB apilado.', images: ['https://nb.scene7.com/is/image/NB/mt31541bk_nb_02_i?$pdpflexf2$&wid=800&hei=800'] },
   { id: 'vans-classic-tee', name: 'Classic Logo Tee', brand: 'Vans', category: 'remeras', description: 'Vans Classic, remera con logo Off The Wall.', images: ['https://images.vans.com/is/image/VansBrand/VN000GGGY28-HERO?wid=800'] },
@@ -160,95 +160,15 @@ const rawProducts: Product[] = [
   { id: 'levis-93-straight', name: "501 '93 Straight", brand: "Levi's", category: 'jeans', description: "Levi's 501 '93 Straight, corte inspirado en los 90 con fit relajado.", images: ['https://lsco.scene7.com/is/image/lsco/045115279-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000'] },
 ];
 
-const categoryFallbackImages: Record<Category, string[]> = {
-  zapatillas: [
-    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/7bee4ee3e78a4e4a8608a8bf0117cf62_9366/Samba_OG_Shoes_White_B75806_01_standard.jpg',
-    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/350e7f3a-979a-402b-9396-a4c55ee2ea43/AIR+FORCE+1+%2707.png',
-  ],
-  buzos: [
-    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5a4c56c0-c8a4-4ed5-9fdd-5e3f7be8fb2b/TECH+FLEECE+FZ+HOODIE.png',
-    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b0c2e8a6e89a4d3f9f65af2a01517d60_9366/Trefoil_Hoodie_Black_DT7964_01_laydown.jpg',
-  ],
-  camperas: [
-    'https://images.thenorthface.com/is/image/TheNorthFace/NF0A3C8D_JK3_hero?wid=780&hei=906',
-    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/d7bbded4-fb86-4823-8e03-7c3cddfc823e/M+NK+WR+JKT.png',
-  ],
-  jeans: [
-    'https://lsco.scene7.com/is/image/lsco/005010114-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
-    'https://lsco.scene7.com/is/image/lsco/723340070-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
-  ],
-  remeras: [
-    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa1b5b1a-27b5-47f6-b498-7ea080f5819b/M+NSW+TEE+ICON+FUTURA.png',
-    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b4a04e63c79149228e32ae0a01517813_9366/Trefoil_Tee_Black_IU2421_01_laydown.jpg',
-  ],
-};
+export const products: Product[] = rawProducts.map((product) => {
+  const images = [...new Set((product.images || []).map((image) => image.trim()).filter(Boolean))];
+  const officialImages = images.filter(isOfficialImageSource);
 
-const brandFallbackImages: Record<string, string[]> = {
-  Nike: [
-    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/350e7f3a-979a-402b-9396-a4c55ee2ea43/AIR+FORCE+1+%2707.png',
-    'https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5a4c56c0-c8a4-4ed5-9fdd-5e3f7be8fb2b/TECH+FLEECE+FZ+HOODIE.png',
-  ],
-  Adidas: [
-    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/7bee4ee3e78a4e4a8608a8bf0117cf62_9366/Samba_OG_Shoes_White_B75806_01_standard.jpg',
-    'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/b4a04e63c79149228e32ae0a01517813_9366/Trefoil_Tee_Black_IU2421_01_laydown.jpg',
-  ],
-  Puma: [
-    'https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/374915/01/sv01/fnd/PNA/fmt/png/Suede-Classic-XXI-Sneakers',
-    'https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa/global/586688/01/sv01/fnd/PNA/fmt/png/Essentials-Big-Logo-Hoodie',
-  ],
-  "Levi's": [
-    'https://lsco.scene7.com/is/image/lsco/005010114-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
-    'https://lsco.scene7.com/is/image/lsco/723340070-front-pdp?fmt=jpeg&qlt=70&resMode=bisharp&fit=crop,0&op_usm=1.25,0.6,8&wid=800&hei=1000',
-  ],
-  Converse: [
-    'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw4fa12e17/images/a_107/162050C_A_107X1.jpg',
-    'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw0a451821/images/a_107/M9160_A_107X1.jpg',
-  ],
-  Vans: [
-    'https://images.vans.com/is/image/VansBrand/VN000D3HY28-HERO?wid=800',
-    'https://images.vans.com/is/image/VansBrand/VN000GGGY28-HERO?wid=800',
-  ],
-  'New Balance': [
-    'https://nb.scene7.com/is/image/NB/ml574evg_nb_02_i?$pdpflexf2$&wid=800&hei=800',
-    'https://nb.scene7.com/is/image/NB/mt31541bk_nb_02_i?$pdpflexf2$&wid=800&hei=800',
-  ],
-  Champion: [
-    'https://images.champion.com/is/image/champion/GF68_045_front?wid=800&hei=800',
-    'https://images.champion.com/is/image/champion/GT19_045_front?wid=800&hei=800',
-  ],
-  'The North Face': [
-    'https://images.thenorthface.com/is/image/TheNorthFace/NF0A3C8D_JK3_hero?wid=780&hei=906',
-    'https://images.thenorthface.com/is/image/TheNorthFace/NF0A2TX5_JK3_hero?wid=780&hei=906',
-  ],
-};
-
-function buildProductImages(product: Product, usedPrimaryImages: Set<string>): string[] {
-  const candidates = [
-    ...(product.images || []),
-    ...(brandFallbackImages[product.brand] || []),
-    ...(categoryFallbackImages[product.category] || []),
-  ].filter(Boolean);
-
-  const uniqueCandidates = [...new Set(candidates)];
-  const officialCandidates = uniqueCandidates.filter(isOfficialImageSource);
-  const prioritizedCandidates = officialCandidates.length > 0 ? officialCandidates : uniqueCandidates;
-  const primaryImage = prioritizedCandidates.find((image) => !usedPrimaryImages.has(image)) ?? prioritizedCandidates[0];
-
-  if (primaryImage) {
-    usedPrimaryImages.add(primaryImage);
-  }
-
-  return primaryImage
-    ? [primaryImage, ...prioritizedCandidates.filter((image) => image !== primaryImage)]
-    : [];
-}
-
-const usedPrimaryImages = new Set<string>();
-
-export const products: Product[] = rawProducts.map((product) => ({
-  ...product,
-  images: buildProductImages(product, usedPrimaryImages),
-}));
+  return {
+    ...product,
+    images: officialImages.length > 0 ? officialImages : images,
+  };
+});
 
 // ============================================================
 // STORE OFFERS — Real prices from official stores

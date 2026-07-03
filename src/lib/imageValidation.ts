@@ -4,30 +4,8 @@ function isHttpUrl(url: string): boolean {
   return /^https?:\/\//i.test(url);
 }
 
-function toCdnFallback(url: string): string[] {
-  if (!isHttpUrl(url)) return [];
-
-  const normalized = url.replace(/^https?:\/\//i, '');
-  const encoded = encodeURIComponent(normalized);
-
-  return [
-    `https://images.weserv.nl/?url=${encoded}&w=1200&output=webp`,
-    `https://wsrv.nl/?url=${encoded}&w=1200&output=webp`,
-  ];
-}
-
 export function buildImageCandidates(sources: string[]): string[] {
-  const candidates: string[] = [];
-
-  sources
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .forEach((source) => {
-      candidates.push(source);
-      toCdnFallback(source).forEach((fallback) => candidates.push(fallback));
-    });
-
-  return [...new Set(candidates)];
+  return [...new Set(sources.map((item) => item.trim()).filter(Boolean))];
 }
 
 async function validateByHead(url: string, timeoutMs = 4500): Promise<boolean> {

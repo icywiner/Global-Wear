@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Globe, ChevronDown, User, LogOut, Compass, ArrowLeft, Shield } from 'lucide-react';
+import { Search, ChevronDown, User, LogOut, Compass, ArrowLeft, Shield } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
@@ -52,57 +52,13 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-border/60 bg-card/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            <Globe className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-bold text-lg tracking-tight text-foreground" style={{ fontFamily: 'Space Grotesk' }}>
-              GlobalWear
-            </span>
-            <p className="text-[10px] text-muted-foreground -mt-0.5">Compare</p>
-          </div>
+        <Link to="/" className="flex shrink-0 rounded-2xl px-1 py-1 transition-colors hover:bg-secondary/50" aria-label="Ir al inicio">
+          <img
+            src="/logo-globalwear.png"
+            alt="GlobalWear"
+            className="h-16 w-auto max-w-none object-contain sm:h-20"
+          />
         </Link>
-
-        {/* Search bar - center */}
-        {hasLocation && (
-          <form onSubmit={handleSearch} ref={searchRef} className="hidden md:flex flex-1 max-w-xl mx-auto relative">
-            <div className="relative w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar por producto o marca"
-                value={searchQuery}
-                onChange={e => {
-                  setSearchQuery(e.target.value);
-                  setSearchOpen(true);
-                }}
-                onFocus={() => setSearchOpen(true)}
-                className="w-full bg-secondary/70 border border-border/80 rounded-full pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
-              />
-            </div>
-
-            {searchOpen && searchSuggestions.length > 0 && (
-              <div className="absolute top-full mt-2 left-0 right-0 bg-card border border-border rounded-2xl shadow-lg overflow-hidden z-50">
-                {searchSuggestions.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      navigate(`/producto/${item.id}`);
-                      setSearchQuery('');
-                      setSearchOpen(false);
-                    }}
-                    className="w-full px-4 py-3 text-left hover:bg-secondary/70 transition-colors border-b border-border/60 last:border-0"
-                  >
-                    <p className="text-sm font-semibold text-foreground">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{item.brand}</p>
-                  </button>
-                ))}
-              </div>
-            )}
-          </form>
-        )}
 
         {/* Right side */}
         <div className="flex items-center gap-2 ml-auto">

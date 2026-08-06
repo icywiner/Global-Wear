@@ -7,10 +7,10 @@ import { useBrand } from '@/context/BrandContext';
 import {
   categories,
   getCatalogBestOffer,
-  getCatalogProductsForSelection,
+  getCatalogProductsForLocation,
   type Category,
 } from '@/data/catalog';
-import { buildAssistantReply, type AssistantContext } from '@/lib/assistantIntelligence';
+import { buildAssistantReply, type AssistantConversationState, type AssistantContext } from '@/lib/assistantIntelligence';
 import { logActivity } from '@/lib/activity';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
@@ -36,6 +36,13 @@ export default function AIChatWidget() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationState, setConversationState] = useState<AssistantConversationState>({
+    activeProductName: null,
+    activeBrand: null,
+    activeCategory: null,
+    activeCountryCode: null,
+    activeCityId: null,
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { country, city } = useLocation();
   const { selectedBrand } = useBrand();
@@ -61,10 +68,7 @@ export default function AIChatWidget() {
       };
     }
 
-    const visibleProducts = getCatalogProductsForSelection(country.code, city.id, {
-      brand: selectedBrand,
-      category: selectedCategory,
-    })
+    const visibleProducts = getCatalogProductsForLocation(country.code, city.id)
       .map((product) => {
         const offer = getCatalogBestOffer(product.id, country.code, city.id);
         return offer
@@ -105,6 +109,8 @@ export default function AIChatWidget() {
     if (!queryText || isLoading) return;
 
     const userMsg: Msg = { role: 'user', content: queryText };
+    const conversationHistory = [...messages, userMsg];
+
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
@@ -118,8 +124,9 @@ export default function AIChatWidget() {
         category: appContext.category || '',
       });
 
-      const assistantReply = buildAssistantReply(queryText, appContext as AssistantContext);
-      setMessages((prev) => [...prev, { role: 'assistant', content: assistantReply }]);
+      const assistantResult = buildAssistantReply(queryText, appContext as AssistantContext, conversationHistory, conversationState);
+      setConversationState(assistantResult.state);
+      setMessages((prev) => [...prev, { role: 'assistant', content: assistantResult.reply }]);
     } catch (e: any) {
       setMessages((prev) => [...prev, { role: 'assistant', content: e.message || 'No pude procesar tu consulta. Intentá de nuevo.' }]);
     } finally {

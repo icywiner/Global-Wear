@@ -211,7 +211,7 @@ const validOfferProductIds = new Set(
 );
 
 export const catalogProducts: CatalogProduct[] = variantProducts.filter(
-  (product) => isValidImageUrl(product.images[0]) && validOfferProductIds.has(product.id)
+  (product) => validOfferProductIds.has(product.id)
 );
 
 const baseCatalogOffers: CatalogOffer[] = variantOffers.filter(

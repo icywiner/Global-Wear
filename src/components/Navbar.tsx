@@ -39,7 +39,7 @@ export default function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/explorar?q=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/productos?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
       setSearchOpen(false);
     }
@@ -103,7 +103,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2 ml-auto">
           {/* Explorar link */}
           <Link
-            to="/explorar"
+            to="/productos"
             className="hidden lg:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
           >
             <Compass className="w-4 h-4" />

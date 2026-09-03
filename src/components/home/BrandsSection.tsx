@@ -147,7 +147,7 @@ export default function BrandsSection() {
               Mostrando solo marcas con productos reales disponibles en {city?.name}, {country?.name}.
             </p>
           </div>
-          <Link to="/explorar" className="text-sm text-primary font-medium hover:underline flex items-center gap-0.5">
+          <Link to="/productos" className="text-sm text-primary font-medium hover:underline flex items-center gap-0.5">
             Ver todas <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -193,7 +193,7 @@ function BrandCard({
       transition={{ duration: 0.35, delay: index * 0.04 }}
     >
       <Link
-        to={`/explorar?q=${brand.query}`}
+        to={`/productos?q=${brand.query}`}
         className="group block"
       >
         <div className="h-[108px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">

@@ -55,7 +55,7 @@ export default function ProductDetail() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <Link
-        to="/explorar"
+        to="/productos"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Volver a productos

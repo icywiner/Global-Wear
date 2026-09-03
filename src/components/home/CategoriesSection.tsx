@@ -78,7 +78,7 @@ export default function CategoriesSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {categoryCards.map((cat, i) => (
-            <CategoryCard key={cat.id} card={cat} index={i} onClick={() => navigate(`/explorar?categoria=${cat.id}`)} />
+            <CategoryCard key={cat.id} card={cat} index={i} onClick={() => navigate(`/productos?categoria=${cat.id}`)} />
           ))}
         </div>
       </div>

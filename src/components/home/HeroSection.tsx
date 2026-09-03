@@ -34,7 +34,7 @@ export default function HeroSection() {
 
   const handleSearch = (q: string) => {
     if (q.trim()) {
-      navigate(`/explorar?q=${encodeURIComponent(q.trim())}`);
+      navigate(`/productos?q=${encodeURIComponent(q.trim())}`);
       setQuery('');
       setShowSuggestions(false);
     }

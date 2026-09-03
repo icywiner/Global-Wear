@@ -49,7 +49,7 @@ export default function Footer() {
 
           {/* Explore */}
           <div>
-            <h4 className="font-semibold text-foreground mb-3 text-sm">Explorar</h4>
+            <h4 className="font-semibold text-foreground mb-3 text-sm">Categorías</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/productos" className="hover:text-primary transition-colors">Todos los Productos</Link></li>
               <li><Link to="/productos?categoria=zapatillas" className="hover:text-primary transition-colors">Zapatillas</Link></li>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { UserPlus, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, CheckCircle, Mail, Lock, User } from 'lucide-react';
+import AuthLayout from '@/components/auth/AuthLayout';
 
 export default function Register() {
   const { user, signUp, loading } = useAuth();
@@ -41,116 +42,134 @@ export default function Register() {
 
   if (success) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4">
-        <div className="max-w-sm w-full text-center rounded-3xl border border-border bg-card/85 backdrop-blur-sm p-7 shadow-lg">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-success/10 mb-4">
-            <CheckCircle className="w-7 h-7 text-success" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2" style={{ fontFamily: 'Space Grotesk' }}>
-            ¡Cuenta creada!
-          </h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            Revisá tu email para confirmar tu cuenta y luego iniciá sesión.
+      <AuthLayout
+        title="¡Cuenta creada!"
+        subtitle="Revisá tu email para confirmar tu cuenta y luego iniciá sesión."
+        footer={
+          <>
+            ¿Ya confirmaste?{' '}
+            <Link to="/login" className="font-semibold text-primary hover:underline">
+              Iniciá sesión
+            </Link>
+          </>
+        }
+      >
+        <div className="rounded-2xl border border-success/25 bg-success/10 p-6 text-center">
+          <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-success/15">
+            <CheckCircle className="h-6 w-6 text-success" />
+          </span>
+          <p className="text-sm text-muted-foreground">
+            Tu cuenta de GlobalWear Compare está lista para usarse.
           </p>
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity"
+            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
             Ir a iniciar sesión
           </Link>
         </div>
-      </div>
+      </AuthLayout>
     );
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">
-      <div className="max-w-md w-full rounded-3xl border border-border bg-card/85 backdrop-blur-sm p-6 md:p-8 shadow-lg">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
-            <UserPlus className="w-7 h-7 text-primary" />
+    <AuthLayout
+      title="Crear cuenta"
+      subtitle="Registrate para guardar tus productos favoritos y comparar precios reales."
+      footer={
+        <>
+          ¿Ya tenés cuenta?{' '}
+          <Link to="/login" className="font-semibold text-primary hover:underline">
+            Iniciá sesión
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {error && (
+          <div className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'Space Grotesk' }}>
-            Crear cuenta
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Registrate en GlobalWear Compare
-          </p>
-        </div>
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="flex items-center gap-2 bg-danger/10 border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Nombre</label>
+        <div>
+          <label htmlFor="reg-name" className="mb-1.5 block text-sm font-medium text-foreground">
+            Nombre
+          </label>
+          <div className="relative">
+            <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
+              id="reg-name"
               type="text"
+              autoComplete="name"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Tu nombre"
               maxLength={100}
-              className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+              className="h-12 w-full rounded-xl border border-border bg-card pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground transition-shadow focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
+        <div>
+          <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-foreground">
+            Email
+          </label>
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
+              id="reg-email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="tu@email.com"
               maxLength={255}
-              className="w-full bg-white border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+              className="h-12 w-full rounded-xl border border-border bg-card pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground transition-shadow focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Contraseña</label>
-            <div className="relative">
-              <input
-                type={showPw ? 'text' : 'password'}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                className="w-full bg-white border border-border rounded-xl px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-            {password.length > 0 && (
-              <p className={`text-xs mt-1.5 ${pwValid ? 'text-success' : 'text-muted-foreground'}`}>
-                {pwValid ? '✓ Contraseña válida' : `${password.length}/6 caracteres mínimos`}
-              </p>
-            )}
+        <div>
+          <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-foreground">
+            Contraseña
+          </label>
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              id="reg-password"
+              type={showPw ? 'text' : 'password'}
+              autoComplete="new-password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+              className="h-12 w-full rounded-xl border border-border bg-card pl-11 pr-12 text-sm text-foreground placeholder:text-muted-foreground transition-shadow focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw(!showPw)}
+              aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
           </div>
+          {password.length > 0 && (
+            <p className={`mt-1.5 text-xs ${pwValid ? 'text-success' : 'text-muted-foreground'}`}>
+              {pwValid ? '✓ Contraseña válida' : `${password.length}/6 caracteres mínimos`}
+            </p>
+          )}
+        </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            {submitting ? 'Creando cuenta...' : 'Crear cuenta'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          ¿Ya tenés cuenta?{' '}
-          <Link to="/login" className="text-primary font-medium hover:underline">
-            Iniciá sesión
-          </Link>
-        </p>
-      </div>
-    </div>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="h-12 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {submitting ? 'Creando cuenta...' : 'Crear cuenta'}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }

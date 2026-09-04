@@ -279,3 +279,38 @@ export function getCatalogStats() {
     cities: cityCount,
   };
 }
+
+const productSearchIndex = new Map<string, string>();
+
+catalogProducts.forEach((product) => {
+  const relatedOffers = catalogOffers.filter((offer) => offer.productId === product.id);
+  const locationTerms = relatedOffers
+    .map((offer) => `${offer.store} ${offer.cityName} ${offer.countryName} ${offer.countryCode} ${offer.cityId}`)
+    .join(' ');
+
+  const categoryLabel = categories.find((item) => item.id === product.category)?.label || product.category;
+
+  productSearchIndex.set(
+    product.id,
+    `${product.name} ${product.brand} ${product.category} ${categoryLabel} ${product.description} ${locationTerms}`
+      .toLowerCase()
+  );
+});
+
+export function matchesCatalogQuery(productId: string, query: string): boolean {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return true;
+
+  const haystack = productSearchIndex.get(productId);
+  if (!haystack) return false;
+
+  return normalized
+    .split(/\s+/)
+    .every((token) => haystack.includes(token));
+}
+
+export function searchCatalogProducts(query: string): CatalogProduct[] {
+  const normalized = query.trim();
+  if (!normalized) return [];
+  return catalogProducts.filter((product) => matchesCatalogQuery(product.id, normalized));
+}

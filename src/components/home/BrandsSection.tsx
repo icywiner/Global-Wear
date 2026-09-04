@@ -131,9 +131,7 @@ export default function BrandsSection() {
       }));
   }, [country?.code, city?.id]);
 
-  const dynamicLayoutClass = brandsForLocation.length <= 3
-    ? 'flex flex-wrap justify-center gap-3 md:gap-4'
-    : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4';
+  const dynamicLayoutClass = 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9 gap-3';
 
   return (
     <section className="py-10 px-4">

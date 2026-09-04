@@ -3,13 +3,15 @@ import { FixedSizeList as List, type ListChildComponentProps } from 'react-windo
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
+import BackButton from '@/components/ui/BackButton';
 import {
   categories,
   getCatalogBestOffer,
   getCatalogProductsForLocation,
-  getCatalogStats,
   getCatalogSuggestions,
   getStorePoints,
+  matchesCatalogQuery,
+  searchCatalogProducts,
   toUSD,
   type Category,
   type CatalogOffer,
@@ -59,8 +61,6 @@ export default function ProductsGrid() {
   const [hiddenProductIds, setHiddenProductIds] = useState<Set<string>>(new Set());
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
-  const stats = useMemo(() => getCatalogStats(), []);
-
   useEffect(() => {
     const initialQuery = (searchParams.get('q') || '').trim();
     const category = searchParams.get('categoria') as Category | null;
@@ -74,14 +74,17 @@ export default function ProductsGrid() {
     }
   }, []);
 
-  const availableProducts = useMemo(
-    () => (country && city ? getCatalogProductsForLocation(country.code, city.id) : []),
-    [country?.code, city?.id]
-  );
+  const hasLocation = Boolean(country && city);
+  const normalizedQuery = query.trim();
+
+  const availableProducts = useMemo(() => {
+    if (hasLocation) return getCatalogProductsForLocation(country!.code, city!.id);
+    return normalizedQuery ? searchCatalogProducts(normalizedQuery) : [];
+  }, [country?.code, city?.id, hasLocation, normalizedQuery]);
 
   const suggestionList = useMemo(
-    () => (country && city ? getCatalogSuggestions(country.code, city.id).slice(0, 40) : []),
-    [country?.code, city?.id]
+    () => (hasLocation ? getCatalogSuggestions(country!.code, city!.id).slice(0, 40) : []),
+    [country?.code, city?.id, hasLocation]
   );
 
   const brands = useMemo(() => {
@@ -93,17 +96,12 @@ export default function ProductsGrid() {
   }, [availableProducts]);
 
   const renderedItems = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
     const items: RenderItem[] = availableProducts
       .filter((product) => {
         if (hiddenProductIds.has(product.id)) return false;
         if (selectedCategory && product.category !== selectedCategory) return false;
         if (selectedBrand !== 'all' && product.brand !== selectedBrand) return false;
-        if (normalizedQuery) {
-          const match = `${product.name} ${product.brand}`.toLowerCase().includes(normalizedQuery);
-          if (!match) return false;
-        }
+        if (normalizedQuery && !matchesCatalogQuery(product.id, normalizedQuery)) return false;
         return true;
       })
       .map((product) => {
@@ -112,14 +110,11 @@ export default function ProductsGrid() {
       })
       .filter((item): item is RenderItem => Boolean(item.offer))
       .filter((item) => {
-        if (!item.offer) return false;
-
         const usd = toUSD(item.offer.price, item.offer.currency);
         if (priceRange === 'under100' && usd >= 100) return false;
         if (priceRange === '100-200' && (usd < 100 || usd > 200)) return false;
         if (priceRange === '200+' && usd <= 200) return false;
         if (selectedStoreKey && item.offer.storeKey !== selectedStoreKey) return false;
-
         return true;
       });
 
@@ -137,8 +132,8 @@ export default function ProductsGrid() {
   }, [
     availableProducts,
     hiddenProductIds,
+    normalizedQuery,
     priceRange,
-    query,
     selectedBrand,
     selectedCategory,
     selectedStoreKey,
@@ -146,10 +141,10 @@ export default function ProductsGrid() {
   ]);
 
   const storePoints = useMemo(() => {
-    if (!country || !city) return [];
+    if (!hasLocation) return [];
     const productIds = renderedItems.map((item) => item.product.id);
-    return getStorePoints(country.code, city.id, productIds);
-  }, [country?.code, city?.id, renderedItems]);
+    return getStorePoints(country!.code, city!.id, productIds);
+  }, [country?.code, city?.id, hasLocation, renderedItems]);
 
   const storePreviewProducts = useMemo(() => {
     const previews = new Map<string, string[]>();
@@ -168,8 +163,8 @@ export default function ProductsGrid() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
 
-    if (query.trim().length > 0) {
-      params.set('q', query.trim());
+    if (normalizedQuery.length > 0) {
+      params.set('q', normalizedQuery);
     } else {
       params.delete('q');
     }
@@ -181,7 +176,7 @@ export default function ProductsGrid() {
     }
 
     setSearchParams(params, { replace: true });
-  }, [query, selectedCategory]);
+  }, [normalizedQuery, selectedCategory]);
 
   const onImageError = (productId: string) => {
     setHiddenProductIds((current) => {
@@ -196,9 +191,9 @@ export default function ProductsGrid() {
     setSelectedStoreKey(storeKey);
   };
 
-  if (!country || !city) {
-    return null;
-  }
+  const categoryLabel = selectedCategory
+    ? categories.find((item) => item.id === selectedCategory)?.label
+    : null;
 
   return (
     <section className="px-4 pb-16 pt-8">
@@ -206,166 +201,187 @@ export default function ProductsGrid() {
         <div className="mb-6 rounded-3xl border border-border bg-card p-5 md:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Paso 3 de 4</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">Categoria y resultados</h2>
+              <div className="mb-3 flex items-center gap-3">
+                <BackButton />
+                <nav aria-label="Ruta de navegacion" className="text-xs text-muted-foreground">
+                  {hasLocation ? (
+                    <span>
+                      {country!.flag} {country!.name} <span className="mx-1">/</span> {city!.name}
+                      {categoryLabel && (
+                        <>
+                          <span className="mx-1">/</span> {categoryLabel}
+                        </>
+                      )}
+                    </span>
+                  ) : (
+                    <span>Busqueda global sin ubicacion seleccionada</span>
+                  )}
+                </nav>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                {categoryLabel ? categoryLabel : normalizedQuery ? `Resultados para "${normalizedQuery}"` : 'Todos los productos'}
+              </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {country.flag} {country.name} · {city.name} · {stats.products} productos validados · {stats.stores} tiendas
+                {renderedItems.length} productos verificados
+                {hasLocation ? ` en ${city!.name}, ${country!.name}` : ' en todas las ciudades disponibles'}
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-secondary/35 px-4 py-3">
-              <p className="text-sm font-semibold text-foreground">Paso 4: comparar y elegir tienda en el mapa</p>
-              <p className="text-xs text-muted-foreground">Selecciona una card o pin para sincronizar lista y mapa.</p>
-            </div>
-          </div>
 
-          <div className="mt-5 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => {
-                  setSelectedCategory((current) => (current === category.id ? null : category.id));
-                  setSelectedStoreKey(null);
-                  setSelectedProductId(null);
-                }}
-                className={`shrink-0 rounded-full border px-5 py-2 text-sm font-medium transition-colors ${
-                  selectedCategory === category.id
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-foreground hover:border-primary/40'
-                }`}
-              >
-                {category.icon} {category.label}
-              </button>
-            ))}
+            {(categoryLabel || normalizedQuery) && (
+              <div className="flex flex-wrap gap-2">
+                {categoryLabel && (
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/45"
+                  >
+                    {categoryLabel} <X className="h-3 w-3" />
+                  </button>
+                )}
+                {normalizedQuery && (
+                  <button
+                    onClick={() => setQuery('')}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/45"
+                  >
+                    "{normalizedQuery}" <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {!selectedCategory ? (
-          <div className="rounded-3xl border border-border bg-card p-12 text-center">
-            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground mb-2">Flujo obligatorio</p>
-            <h3 className="text-2xl font-semibold text-foreground mb-2">Primero elige una categoria</h3>
-            <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-              Para mantener una experiencia tipo Trivago, primero definimos categoria y luego mostramos resultados en vista
-              dividida con mapa, filtros, busqueda y ordenamiento.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start">
-            <div className="rounded-3xl border border-border bg-card p-4 md:p-5">
-              <div className="mb-4 grid gap-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    list="catalog-search-suggestions"
-                    placeholder="Buscar por producto o marca..."
-                    className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm outline-none focus:border-primary"
-                  />
-                  <datalist id="catalog-search-suggestions">
-                    {suggestionList.map((suggestion) => (
-                      <option key={suggestion} value={suggestion} />
-                    ))}
-                  </datalist>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                  <label className="text-xs font-medium text-muted-foreground">
-                    <span className="mb-1 inline-flex items-center gap-1"><SlidersHorizontal className="w-3 h-3" /> Marca</span>
-                    <select
-                      value={selectedBrand}
-                      onChange={(event) => {
-                        setSelectedBrand(event.target.value);
-                        setSelectedStoreKey(null);
-                      }}
-                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-                    >
-                      <option value="all">Todas</option>
-                      {brands.map((brand) => (
-                        <option key={brand.brand} value={brand.brand}>
-                          {brand.brand} ({brand.count})
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="text-xs font-medium text-muted-foreground">
-                    <span className="mb-1 block">Precio</span>
-                    <select
-                      value={priceRange}
-                      onChange={(event) => setPriceRange(event.target.value as 'all' | 'under100' | '100-200' | '200+')}
-                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-                    >
-                      <option value="all">Todos</option>
-                      <option value="under100">Menor a $100</option>
-                      <option value="100-200">$100 a $200</option>
-                      <option value="200+">Mayor a $200</option>
-                    </select>
-                  </label>
-
-                  <label className="text-xs font-medium text-muted-foreground">
-                    <span className="mb-1 block">Ubicacion</span>
-                    <input
-                      value={`${city.name}, ${country.name}`}
-                      readOnly
-                      className="h-10 w-full rounded-xl border border-border bg-secondary/40 px-3 text-sm text-foreground"
-                    />
-                  </label>
-
-                  <label className="text-xs font-medium text-muted-foreground">
-                    <span className="mb-1 block">Orden</span>
-                    <select
-                      value={sortBy}
-                      onChange={(event) => setSortBy(event.target.value as 'low' | 'high' | 'popular')}
-                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
-                    >
-                      <option value="popular">Popularidad</option>
-                      <option value="low">Menor precio</option>
-                      <option value="high">Mayor precio</option>
-                    </select>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between text-sm">
-                  <p className="text-muted-foreground">
-                    {renderedItems.length} productos listos para comparar · {storePoints.length} tiendas en mapa
-                  </p>
-                  {selectedStoreKey && (
-                    <button
-                      onClick={() => {
-                        setSelectedStoreKey(null);
-                        setSelectedProductId(null);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/45"
-                    >
-                      <X className="w-3 h-3" /> Limpiar tienda seleccionada
-                    </button>
-                  )}
-                </div>
+        <div className={`grid gap-6 items-start ${hasLocation ? 'xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]' : ''}`}>
+          <div className="rounded-3xl border border-border bg-card p-4 md:p-5">
+            <div className="mb-4 grid gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  list="catalog-search-suggestions"
+                  placeholder="Buscar por producto, marca, categoria o ciudad..."
+                  className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm outline-none focus:border-primary"
+                />
+                <datalist id="catalog-search-suggestions">
+                  {suggestionList.map((suggestion) => (
+                    <option key={suggestion} value={suggestion} />
+                  ))}
+                </datalist>
               </div>
 
-              {renderedItems.length > 0 ? (
-                <List
-                  height={700}
-                  itemCount={renderedItems.length}
-                  itemSize={336}
-                  width="100%"
-                  itemData={{
-                    items: renderedItems,
-                    selectedProductId,
-                    onSelectProduct,
-                    onImageError,
-                  }}
-                >
-                  {ProductRow}
-                </List>
-              ) : (
-                <div className="rounded-2xl border border-border bg-secondary/25 p-10 text-center">
-                  <p className="text-lg font-semibold text-foreground mb-1">No hay resultados con los filtros actuales</p>
-                  <p className="text-sm text-muted-foreground">Prueba otra marca, rango de precio o limpia la tienda seleccionada.</p>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <label className="text-xs font-medium text-muted-foreground">
+                  <span className="mb-1 inline-flex items-center gap-1"><SlidersHorizontal className="w-3 h-3" /> Marca</span>
+                  <select
+                    value={selectedBrand}
+                    onChange={(event) => {
+                      setSelectedBrand(event.target.value);
+                      setSelectedStoreKey(null);
+                    }}
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                  >
+                    <option value="all">Todas</option>
+                    {brands.map((brand) => (
+                      <option key={brand.brand} value={brand.brand}>
+                        {brand.brand} ({brand.count})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="text-xs font-medium text-muted-foreground">
+                  <span className="mb-1 block">Categoria</span>
+                  <select
+                    value={selectedCategory || 'all'}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setSelectedCategory(value === 'all' ? null : (value as Category));
+                      setSelectedStoreKey(null);
+                      setSelectedProductId(null);
+                    }}
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                  >
+                    <option value="all">Todas</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="text-xs font-medium text-muted-foreground">
+                  <span className="mb-1 block">Precio</span>
+                  <select
+                    value={priceRange}
+                    onChange={(event) => setPriceRange(event.target.value as 'all' | 'under100' | '100-200' | '200+')}
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                  >
+                    <option value="all">Todos</option>
+                    <option value="under100">Menor a $100</option>
+                    <option value="100-200">$100 a $200</option>
+                    <option value="200+">Mayor a $200</option>
+                  </select>
+                </label>
+
+                <label className="text-xs font-medium text-muted-foreground">
+                  <span className="mb-1 block">Orden</span>
+                  <select
+                    value={sortBy}
+                    onChange={(event) => setSortBy(event.target.value as 'low' | 'high' | 'popular')}
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                  >
+                    <option value="popular">Popularidad</option>
+                    <option value="low">Menor precio</option>
+                    <option value="high">Mayor precio</option>
+                  </select>
+                </label>
+              </div>
+
+              {selectedStoreKey && (
+                <div className="flex items-center justify-between text-sm">
+                  <p className="text-muted-foreground">{storePoints.length} tiendas en el mapa</p>
+                  <button
+                    onClick={() => {
+                      setSelectedStoreKey(null);
+                      setSelectedProductId(null);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/45"
+                  >
+                    <X className="w-3 h-3" /> Limpiar tienda seleccionada
+                  </button>
                 </div>
               )}
             </div>
 
+            {renderedItems.length > 0 ? (
+              <List
+                height={700}
+                itemCount={renderedItems.length}
+                itemSize={336}
+                width="100%"
+                itemData={{
+                  items: renderedItems,
+                  selectedProductId,
+                  onSelectProduct,
+                  onImageError,
+                }}
+              >
+                {ProductRow}
+              </List>
+            ) : (
+              <div className="rounded-2xl border border-border bg-secondary/25 p-10 text-center">
+                <p className="text-lg font-semibold text-foreground mb-1">
+                  {normalizedQuery ? `Sin resultados para "${normalizedQuery}"` : 'No hay resultados con los filtros actuales'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Proba con otra palabra, marca o categoria, o cambia la ciudad seleccionada.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {hasLocation && (
             <div className="sticky top-24">
               <Suspense
                 fallback={
@@ -385,8 +401,8 @@ export default function ProductsGrid() {
                 />
               </Suspense>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </section>
   );

@@ -3,7 +3,6 @@ import LocationPicker from '@/components/home/LocationPicker';
 import HeroSection from '@/components/home/HeroSection';
 import BrandsSection from '@/components/home/BrandsSection';
 import CategoriesSection from '@/components/home/CategoriesSection';
-import ProductsGrid from '@/components/home/ProductsGrid';
 
 export default function Home() {
   const { country, city } = useLocation();
@@ -17,7 +16,6 @@ export default function Home() {
       <HeroSection />
       <BrandsSection />
       <CategoriesSection />
-      <ProductsGrid />
     </div>
   );
 }

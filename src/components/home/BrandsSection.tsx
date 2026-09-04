@@ -153,7 +153,7 @@ export default function BrandsSection() {
         {brandsForLocation.length > 0 ? (
           <div className={dynamicLayoutClass}>
             {brandsForLocation.map((brand, i) => (
-              <div key={brand.name} className={brandsForLocation.length <= 3 ? 'w-full max-w-[220px]' : ''}>
+              <div key={brand.name}>
                 <BrandCard brand={brand} index={i} />
               </div>
             ))}
@@ -194,7 +194,7 @@ function BrandCard({
         to={`/productos?q=${brand.query}`}
         className="group block"
       >
-        <div className="h-[108px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">
+        <div className="h-[96px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">
           <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3">
             <SmartImage
               sources={brand.logos}

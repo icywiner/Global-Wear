@@ -52,27 +52,17 @@ function ProductRow({ index, style, data }: ListChildComponentProps<RowData>) {
 export default function ProductsGrid() {
   const { country, city } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(() => {
+    const category = searchParams.get('categoria') as Category | null;
+    return category && categories.some((item) => item.id === category) ? category : null;
+  });
   const [selectedBrand, setSelectedBrand] = useState('all');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => (searchParams.get('q') || '').trim());
   const [selectedStoreKey, setSelectedStoreKey] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'low' | 'high' | 'popular'>('popular');
   const [priceRange, setPriceRange] = useState<'all' | 'under100' | '100-200' | '200+'>('all');
   const [hiddenProductIds, setHiddenProductIds] = useState<Set<string>>(new Set());
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const initialQuery = (searchParams.get('q') || '').trim();
-    const category = searchParams.get('categoria') as Category | null;
-
-    if (initialQuery) {
-      setQuery(initialQuery);
-    }
-
-    if (category && categories.some((item) => item.id === category)) {
-      setSelectedCategory(category);
-    }
-  }, []);
 
   const hasLocation = Boolean(country && city);
   const normalizedQuery = query.trim();

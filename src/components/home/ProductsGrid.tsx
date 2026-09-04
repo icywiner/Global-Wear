@@ -3,7 +3,6 @@ import { FixedSizeList as List, type ListChildComponentProps } from 'react-windo
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
-import BackButton from '@/components/ui/BackButton';
 import {
   categories,
   getCatalogBestOffer,
@@ -192,7 +191,6 @@ export default function ProductsGrid() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="mb-3 flex items-center gap-3">
-                <BackButton />
                 <nav aria-label="Ruta de navegacion" className="text-xs text-muted-foreground">
                   {hasLocation ? (
                     <span>

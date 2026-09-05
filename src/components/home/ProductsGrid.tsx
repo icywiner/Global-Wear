@@ -204,14 +204,18 @@ export default function ProductsGrid() {
               <div className="mb-3 flex items-center gap-3">
                 <nav aria-label="Ruta de navegacion" className="text-xs text-muted-foreground">
                   {hasLocation ? (
-                    <span>
-                      {country!.flag} {country!.name} <span className="mx-1">/</span> {city!.name}
+                    <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                      <span>{country!.flag} {country!.name}</span>
+                      <span aria-hidden="true">/</span>
+                      <span>{city!.name}</span>
                       {categoryLabel && (
                         <>
-                          <span className="mx-1">/</span> {categoryLabel}
+                          <span aria-hidden="true">/</span>
+                          <span>{categoryLabel}</span>
                         </>
                       )}
                     </span>
+
                   ) : (
                     <span>Busqueda global sin ubicacion seleccionada</span>
                   )}

@@ -20,10 +20,11 @@ export default function BackButton({ label = 'Volver', className = '' }: { label
       type="button"
       onClick={handleBack}
       aria-label={label}
-      className={`inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 sm:px-4 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary ${className}`}
     >
       <ArrowLeft className="h-4 w-4" />
-      {label}
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }
+

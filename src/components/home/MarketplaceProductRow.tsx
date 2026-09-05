@@ -20,12 +20,13 @@ export default function MarketplaceProductRow({
 }: MarketplaceProductRowProps) {
   return (
     <article
-      className={`rounded-3xl border bg-card p-4 md:p-5 transition-all duration-300 h-[320px] flex flex-col ${
+      className={`rounded-3xl border bg-card p-4 md:p-5 transition-all duration-300 h-full flex flex-col overflow-hidden ${
         isActive ? 'border-primary shadow-xl ring-2 ring-primary/20' : 'border-border hover:border-primary/35 hover:shadow-lg'
       }`}
       onClick={() => onSelect(product.id, offer.storeKey)}
     >
-      <div className="grid grid-cols-[132px_1fr] md:grid-cols-[168px_1fr] gap-4 h-full">
+      <div className="grid grid-cols-[108px_1fr] md:grid-cols-[168px_1fr] gap-4 h-full">
+
         <div className="relative rounded-2xl bg-secondary/40 overflow-hidden">
           <SmartImage
             sources={product.images}

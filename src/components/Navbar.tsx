@@ -42,7 +42,7 @@ export default function Navbar() {
         </Link>
 
         {/* Back navigation */}
-        <BackButton className="hidden sm:inline-flex" />
+        <BackButton />
 
         {/* Right side */}
         <div className="flex items-center gap-2 ml-auto">

@@ -62,9 +62,20 @@ export default function ProductsGrid() {
   const [priceRange, setPriceRange] = useState<'all' | 'under100' | '100-200' | '200+'>('all');
   const [hiddenProductIds, setHiddenProductIds] = useState<Set<string>>(new Set());
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [isCompact, setIsCompact] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)');
+    const onChange = () => setIsCompact(media.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
 
   const hasLocation = Boolean(country && city);
   const normalizedQuery = query.trim();
+
 
   const availableProducts = useMemo(() => {
     if (hasLocation) return getCatalogProductsForLocation(country!.code, city!.id);

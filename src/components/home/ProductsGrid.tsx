@@ -359,10 +359,11 @@ export default function ProductsGrid() {
 
             {renderedItems.length > 0 ? (
               <List
-                height={700}
+                height={isCompact ? 620 : 700}
                 itemCount={renderedItems.length}
-                itemSize={336}
+                itemSize={isCompact ? 452 : 336}
                 width="100%"
+
                 itemData={{
                   items: renderedItems,
                   selectedProductId,

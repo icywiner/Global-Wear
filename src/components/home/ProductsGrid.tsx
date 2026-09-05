@@ -62,9 +62,20 @@ export default function ProductsGrid() {
   const [priceRange, setPriceRange] = useState<'all' | 'under100' | '100-200' | '200+'>('all');
   const [hiddenProductIds, setHiddenProductIds] = useState<Set<string>>(new Set());
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [isCompact, setIsCompact] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)');
+    const onChange = () => setIsCompact(media.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
 
   const hasLocation = Boolean(country && city);
   const normalizedQuery = query.trim();
+
 
   const availableProducts = useMemo(() => {
     if (hasLocation) return getCatalogProductsForLocation(country!.code, city!.id);
@@ -193,14 +204,18 @@ export default function ProductsGrid() {
               <div className="mb-3 flex items-center gap-3">
                 <nav aria-label="Ruta de navegacion" className="text-xs text-muted-foreground">
                   {hasLocation ? (
-                    <span>
-                      {country!.flag} {country!.name} <span className="mx-1">/</span> {city!.name}
+                    <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                      <span>{country!.flag} {country!.name}</span>
+                      <span aria-hidden="true">/</span>
+                      <span>{city!.name}</span>
                       {categoryLabel && (
                         <>
-                          <span className="mx-1">/</span> {categoryLabel}
+                          <span aria-hidden="true">/</span>
+                          <span>{categoryLabel}</span>
                         </>
                       )}
                     </span>
+
                   ) : (
                     <span>Busqueda global sin ubicacion seleccionada</span>
                   )}
@@ -344,10 +359,11 @@ export default function ProductsGrid() {
 
             {renderedItems.length > 0 ? (
               <List
-                height={700}
+                height={isCompact ? 620 : 700}
                 itemCount={renderedItems.length}
-                itemSize={336}
+                itemSize={isCompact ? 452 : 336}
                 width="100%"
+
                 itemData={{
                   items: renderedItems,
                   selectedProductId,

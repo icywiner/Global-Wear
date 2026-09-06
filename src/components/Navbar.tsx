@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Globe, ChevronDown, User, LogOut, Sparkles } from 'lucide-react';
+import { ChevronDown, User, LogOut, Sparkles } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
 import BackButton from '@/components/ui/BackButton';
+import logoAsset from '@/assets/globalwear-logo.png.asset.json';
 import { useState, useRef, useEffect } from 'react';
 
 export default function Navbar() {

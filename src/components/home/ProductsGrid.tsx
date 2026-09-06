@@ -160,6 +160,22 @@ export default function ProductsGrid() {
     return previews;
   }, [renderedItems]);
 
+  // Categorias reales disponibles para la marca elegida (paso Marca -> Categoria)
+  const brandCategories = useMemo(() => {
+    if (selectedBrand === 'all') return [];
+    const map = new Map<Category, number>();
+    availableProducts
+      .filter((product) => product.brand === selectedBrand && !hiddenProductIds.has(product.id))
+      .forEach((product) => {
+        map.set(product.category, (map.get(product.category) || 0) + 1);
+      });
+    return categories
+      .filter((category) => map.has(category.id))
+      .map((category) => ({ ...category, count: map.get(category.id)! }));
+  }, [availableProducts, hiddenProductIds, selectedBrand]);
+
+  const needsCategoryStep = selectedBrand !== 'all' && !selectedCategory && !normalizedQuery && brandCategories.length > 0;
+
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
 
@@ -175,8 +191,14 @@ export default function ProductsGrid() {
       params.delete('categoria');
     }
 
+    if (selectedBrand !== 'all') {
+      params.set('marca', selectedBrand);
+    } else {
+      params.delete('marca');
+    }
+
     setSearchParams(params, { replace: true });
-  }, [normalizedQuery, selectedCategory]);
+  }, [normalizedQuery, selectedCategory, selectedBrand]);
 
   const onImageError = (productId: string) => {
     setHiddenProductIds((current) => {

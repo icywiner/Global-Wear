@@ -33,18 +33,20 @@ const brandLogos: Record<string, string[]> = {
     'https://cdn.simpleicons.org/hm/C9002B',
   ],
   Converse: [
-    'https://cdn.simpleicons.org/converse/111111',
+    'https://upload.wikimedia.org/wikipedia/commons/3/30/Converse_logo.svg',
   ],
   Vans: [
-    'https://cdn.simpleicons.org/vans/111111',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5b/Vans-logo.svg',
   ],
   'New Balance': [
+    'https://upload.wikimedia.org/wikipedia/commons/e/ea/New_Balance_logo.svg',
     'https://cdn.simpleicons.org/newbalance/111111',
   ],
   Champion: [
-    'https://cdn.simpleicons.org/champion/111111',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8b/Champion_logo.svg',
   ],
   'The North Face': [
+    'https://upload.wikimedia.org/wikipedia/commons/e/e5/The_North_Face_logo.svg',
     'https://cdn.simpleicons.org/thenorthface/111111',
   ],
 };
@@ -122,13 +124,11 @@ export default function BrandsSection() {
     const extras = [...validBrandNames].filter((name) => !ordered.includes(name)).sort((a, b) => a.localeCompare(b));
     const finalNames = [...ordered, ...extras];
 
-    return finalNames
-      .filter((name) => Array.isArray(brandLogos[name]) && brandLogos[name].length > 0)
-      .map((name) => ({
-        name,
-        query: encodeURIComponent(brandQueryAlias[name] || name),
-        logos: brandLogos[name],
-      }));
+    return finalNames.map((name) => ({
+      name,
+      query: encodeURIComponent(brandQueryAlias[name] || name),
+      logos: Array.isArray(brandLogos[name]) ? brandLogos[name] : [],
+    }));
   }, [country?.code, city?.id]);
 
   const dynamicLayoutClass = 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9 gap-3';
@@ -180,9 +180,8 @@ function BrandCard({
   };
   index: number;
 }) {
-  const [hidden, setHidden] = useState(false);
-
-  if (hidden) return null;
+  const [logoFailed, setLogoFailed] = useState(false);
+  const showWordmark = logoFailed || brand.logos.length === 0;
 
   return (
     <motion.div
@@ -195,14 +194,20 @@ function BrandCard({
         className="group block"
       >
         <div className="h-[96px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">
-          <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3">
-            <SmartImage
-              sources={brand.logos}
-              alt={brand.name}
-              onAllFailed={() => setHidden(true)}
-              imgClassName="h-7 w-full object-contain"
-              skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
-            />
+          <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3 overflow-hidden">
+            {showWordmark ? (
+              <span className="text-sm font-bold tracking-tight text-foreground text-center leading-tight line-clamp-2">
+                {brand.name}
+              </span>
+            ) : (
+              <SmartImage
+                sources={brand.logos}
+                alt={brand.name}
+                onAllFailed={() => setLogoFailed(true)}
+                imgClassName="h-7 w-full object-contain"
+                skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
+              />
+            )}
           </div>
           <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground group-hover:text-foreground transition-colors">
             {brand.name}

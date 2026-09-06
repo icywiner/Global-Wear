@@ -55,7 +55,7 @@ export default function ProductsGrid() {
     const category = searchParams.get('categoria') as Category | null;
     return category && categories.some((item) => item.id === category) ? category : null;
   });
-  const [selectedBrand, setSelectedBrand] = useState('all');
+  const [selectedBrand, setSelectedBrand] = useState(() => (searchParams.get('marca') || 'all').trim() || 'all');
   const [query, setQuery] = useState(() => (searchParams.get('q') || '').trim());
   const [selectedStoreKey, setSelectedStoreKey] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'low' | 'high' | 'popular'>('popular');

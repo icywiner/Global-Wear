@@ -51,10 +51,9 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
   cor: { lat: -31.4201, lng: -64.1888 },
 };
 
+// Solo productos reales: sin variantes generadas ni precios calculados.
 const VARIANT_DEFINITIONS = [
   { suffix: '', multiplier: 1, popularityBoost: 100 },
-  { suffix: 'Core', multiplier: 0.97, popularityBoost: 90 },
-  { suffix: 'Studio', multiplier: 1.04, popularityBoost: 82 },
 ];
 
 function hashString(input: string): number {

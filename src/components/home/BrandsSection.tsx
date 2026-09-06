@@ -33,18 +33,20 @@ const brandLogos: Record<string, string[]> = {
     'https://cdn.simpleicons.org/hm/C9002B',
   ],
   Converse: [
-    'https://cdn.simpleicons.org/converse/111111',
+    'https://upload.wikimedia.org/wikipedia/commons/3/30/Converse_logo.svg',
   ],
   Vans: [
-    'https://cdn.simpleicons.org/vans/111111',
+    'https://upload.wikimedia.org/wikipedia/commons/5/5b/Vans-logo.svg',
   ],
   'New Balance': [
+    'https://upload.wikimedia.org/wikipedia/commons/e/ea/New_Balance_logo.svg',
     'https://cdn.simpleicons.org/newbalance/111111',
   ],
   Champion: [
-    'https://cdn.simpleicons.org/champion/111111',
+    'https://upload.wikimedia.org/wikipedia/commons/8/8b/Champion_logo.svg',
   ],
   'The North Face': [
+    'https://upload.wikimedia.org/wikipedia/commons/e/e5/The_North_Face_logo.svg',
     'https://cdn.simpleicons.org/thenorthface/111111',
   ],
 };

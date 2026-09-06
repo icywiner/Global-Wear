@@ -55,7 +55,7 @@ export default function ProductsGrid() {
     const category = searchParams.get('categoria') as Category | null;
     return category && categories.some((item) => item.id === category) ? category : null;
   });
-  const [selectedBrand, setSelectedBrand] = useState('all');
+  const [selectedBrand, setSelectedBrand] = useState(() => (searchParams.get('marca') || 'all').trim() || 'all');
   const [query, setQuery] = useState(() => (searchParams.get('q') || '').trim());
   const [selectedStoreKey, setSelectedStoreKey] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'low' | 'high' | 'popular'>('popular');
@@ -160,6 +160,22 @@ export default function ProductsGrid() {
     return previews;
   }, [renderedItems]);
 
+  // Categorias reales disponibles para la marca elegida (paso Marca -> Categoria)
+  const brandCategories = useMemo(() => {
+    if (selectedBrand === 'all') return [];
+    const map = new Map<Category, number>();
+    availableProducts
+      .filter((product) => product.brand === selectedBrand && !hiddenProductIds.has(product.id))
+      .forEach((product) => {
+        map.set(product.category, (map.get(product.category) || 0) + 1);
+      });
+    return categories
+      .filter((category) => map.has(category.id))
+      .map((category) => ({ ...category, count: map.get(category.id)! }));
+  }, [availableProducts, hiddenProductIds, selectedBrand]);
+
+  const needsCategoryStep = selectedBrand !== 'all' && !selectedCategory && !normalizedQuery && brandCategories.length > 0;
+
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
 
@@ -175,8 +191,14 @@ export default function ProductsGrid() {
       params.delete('categoria');
     }
 
+    if (selectedBrand !== 'all') {
+      params.set('marca', selectedBrand);
+    } else {
+      params.delete('marca');
+    }
+
     setSearchParams(params, { replace: true });
-  }, [normalizedQuery, selectedCategory]);
+  }, [normalizedQuery, selectedCategory, selectedBrand]);
 
   const onImageError = (productId: string) => {
     setHiddenProductIds((current) => {
@@ -208,6 +230,12 @@ export default function ProductsGrid() {
                       <span>{country!.flag} {country!.name}</span>
                       <span aria-hidden="true">/</span>
                       <span>{city!.name}</span>
+                      {selectedBrand !== 'all' && (
+                        <>
+                          <span aria-hidden="true">/</span>
+                          <span>{selectedBrand}</span>
+                        </>
+                      )}
                       {categoryLabel && (
                         <>
                           <span aria-hidden="true">/</span>
@@ -215,6 +243,7 @@ export default function ProductsGrid() {
                         </>
                       )}
                     </span>
+
 
                   ) : (
                     <span>Busqueda global sin ubicacion seleccionada</span>
@@ -357,7 +386,31 @@ export default function ProductsGrid() {
               )}
             </div>
 
-            {renderedItems.length > 0 ? (
+            {needsCategoryStep ? (
+              <div className="rounded-2xl border border-border bg-secondary/20 p-6">
+                <p className="text-lg font-semibold text-foreground">Elegi una categoria de {selectedBrand}</p>
+                <p className="text-sm text-muted-foreground mt-1 mb-4">
+                  Solo se muestran categorias con productos reales de {selectedBrand}
+                  {hasLocation ? ` en ${city!.name}` : ''}.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {brandCategories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setSelectedCategory(category.id);
+                        setSelectedStoreKey(null);
+                        setSelectedProductId(null);
+                      }}
+                      className="rounded-2xl border border-border bg-card px-4 py-5 text-left hover:border-primary/50 hover:shadow-md transition-all"
+                    >
+                      <span className="block text-base font-semibold text-foreground">{category.label}</span>
+                      <span className="block text-xs text-muted-foreground mt-0.5">{category.count} productos</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : renderedItems.length > 0 ? (
               <List
                 height={isCompact ? 620 : 700}
                 itemCount={renderedItems.length}

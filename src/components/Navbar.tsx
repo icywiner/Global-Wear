@@ -29,16 +29,12 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-border/60 bg-card/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            <Globe className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-bold text-lg tracking-tight text-foreground" style={{ fontFamily: 'Space Grotesk' }}>
-              GlobalWear
-            </span>
-            <p className="text-[10px] text-muted-foreground -mt-0.5">Compare</p>
-          </div>
+        <Link to="/" className="flex items-center shrink-0" aria-label="GlobalWear - Inicio">
+          <img
+            src={logoAsset.url}
+            alt="GlobalWear"
+            className="h-10 md:h-12 w-auto object-contain"
+          />
         </Link>
 
         {/* Back navigation */}

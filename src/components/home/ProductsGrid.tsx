@@ -230,6 +230,12 @@ export default function ProductsGrid() {
                       <span>{country!.flag} {country!.name}</span>
                       <span aria-hidden="true">/</span>
                       <span>{city!.name}</span>
+                      {selectedBrand !== 'all' && (
+                        <>
+                          <span aria-hidden="true">/</span>
+                          <span>{selectedBrand}</span>
+                        </>
+                      )}
                       {categoryLabel && (
                         <>
                           <span aria-hidden="true">/</span>
@@ -237,6 +243,7 @@ export default function ProductsGrid() {
                         </>
                       )}
                     </span>
+
 
                   ) : (
                     <span>Busqueda global sin ubicacion seleccionada</span>

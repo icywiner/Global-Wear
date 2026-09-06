@@ -124,13 +124,11 @@ export default function BrandsSection() {
     const extras = [...validBrandNames].filter((name) => !ordered.includes(name)).sort((a, b) => a.localeCompare(b));
     const finalNames = [...ordered, ...extras];
 
-    return finalNames
-      .filter((name) => Array.isArray(brandLogos[name]) && brandLogos[name].length > 0)
-      .map((name) => ({
-        name,
-        query: encodeURIComponent(brandQueryAlias[name] || name),
-        logos: brandLogos[name],
-      }));
+    return finalNames.map((name) => ({
+      name,
+      query: encodeURIComponent(brandQueryAlias[name] || name),
+      logos: Array.isArray(brandLogos[name]) ? brandLogos[name] : [],
+    }));
   }, [country?.code, city?.id]);
 
   const dynamicLayoutClass = 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9 gap-3';

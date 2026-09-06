@@ -180,9 +180,8 @@ function BrandCard({
   };
   index: number;
 }) {
-  const [hidden, setHidden] = useState(false);
-
-  if (hidden) return null;
+  const [logoFailed, setLogoFailed] = useState(false);
+  const showWordmark = logoFailed || brand.logos.length === 0;
 
   return (
     <motion.div
@@ -195,14 +194,20 @@ function BrandCard({
         className="group block"
       >
         <div className="h-[96px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">
-          <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3">
-            <SmartImage
-              sources={brand.logos}
-              alt={brand.name}
-              onAllFailed={() => setHidden(true)}
-              imgClassName="h-7 w-full object-contain"
-              skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
-            />
+          <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3 overflow-hidden">
+            {showWordmark ? (
+              <span className="text-sm font-bold tracking-tight text-foreground text-center leading-tight line-clamp-2">
+                {brand.name}
+              </span>
+            ) : (
+              <SmartImage
+                sources={brand.logos}
+                alt={brand.name}
+                onAllFailed={() => setLogoFailed(true)}
+                imgClassName="h-7 w-full object-contain"
+                skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
+              />
+            )}
           </div>
           <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground group-hover:text-foreground transition-colors">
             {brand.name}

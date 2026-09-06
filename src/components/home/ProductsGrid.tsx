@@ -386,7 +386,31 @@ export default function ProductsGrid() {
               )}
             </div>
 
-            {renderedItems.length > 0 ? (
+            {needsCategoryStep ? (
+              <div className="rounded-2xl border border-border bg-secondary/20 p-6">
+                <p className="text-lg font-semibold text-foreground">Elegi una categoria de {selectedBrand}</p>
+                <p className="text-sm text-muted-foreground mt-1 mb-4">
+                  Solo se muestran categorias con productos reales de {selectedBrand}
+                  {hasLocation ? ` en ${city!.name}` : ''}.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {brandCategories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setSelectedCategory(category.id);
+                        setSelectedStoreKey(null);
+                        setSelectedProductId(null);
+                      }}
+                      className="rounded-2xl border border-border bg-card px-4 py-5 text-left hover:border-primary/50 hover:shadow-md transition-all"
+                    >
+                      <span className="block text-base font-semibold text-foreground">{category.label}</span>
+                      <span className="block text-xs text-muted-foreground mt-0.5">{category.count} productos</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : renderedItems.length > 0 ? (
               <List
                 height={isCompact ? 620 : 700}
                 itemCount={renderedItems.length}

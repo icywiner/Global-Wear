@@ -79,8 +79,10 @@ export default function ProductsGrid() {
 
   const availableProducts = useMemo(() => {
     if (hasLocation) return getCatalogProductsForLocation(country!.code, city!.id);
-    return normalizedQuery ? searchCatalogProducts(normalizedQuery) : [];
-  }, [country?.code, city?.id, hasLocation, normalizedQuery]);
+    if (normalizedQuery) return searchCatalogProducts(normalizedQuery);
+    if (selectedBrand !== 'all') return catalogProducts.filter((product) => product.brand === selectedBrand);
+    return [];
+  }, [country?.code, city?.id, hasLocation, normalizedQuery, selectedBrand]);
 
   const suggestionList = useMemo(
     () => (hasLocation ? getCatalogSuggestions(country!.code, city!.id).slice(0, 40) : []),

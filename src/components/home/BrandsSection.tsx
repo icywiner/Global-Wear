@@ -126,7 +126,7 @@ export default function BrandsSection() {
 
     return finalNames.map((name) => ({
       name,
-      query: encodeURIComponent(brandQueryAlias[name] || name),
+      query: encodeURIComponent(name),
       logos: Array.isArray(brandLogos[name]) ? brandLogos[name] : [],
     }));
   }, [country?.code, city?.id]);

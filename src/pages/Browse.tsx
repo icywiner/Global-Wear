@@ -5,7 +5,7 @@ import ProductsGrid from '@/components/home/ProductsGrid';
 export default function Browse() {
   const { country, city } = useLocation();
   const [searchParams] = useSearchParams();
-  const hasQuery = Boolean((searchParams.get('q') || '').trim());
+  const hasQuery = Boolean((searchParams.get('q') || '').trim() || (searchParams.get('marca') || '').trim());
 
   if ((!country || !city) && !hasQuery) return <Navigate to="/" replace />;
 

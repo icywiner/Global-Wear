@@ -11,6 +11,7 @@ import {
   getStorePoints,
   matchesCatalogQuery,
   searchCatalogProducts,
+  catalogProducts,
   toUSD,
   type Category,
   type CatalogOffer,

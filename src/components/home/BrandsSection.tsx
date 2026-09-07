@@ -126,7 +126,7 @@ export default function BrandsSection() {
 
     return finalNames.map((name) => ({
       name,
-      query: encodeURIComponent(brandQueryAlias[name] || name),
+      query: encodeURIComponent(name),
       logos: Array.isArray(brandLogos[name]) ? brandLogos[name] : [],
     }));
   }, [country?.code, city?.id]);
@@ -190,7 +190,7 @@ function BrandCard({
       transition={{ duration: 0.35, delay: index * 0.04 }}
     >
       <Link
-        to={`/productos?q=${brand.query}`}
+        to={`/productos?marca=${brand.query}`}
         className="group block"
       >
         <div className="h-[96px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">

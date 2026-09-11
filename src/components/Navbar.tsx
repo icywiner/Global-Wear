@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
-import { ChevronDown, User, LogOut, Sparkles } from 'lucide-react';
+import { ChevronDown, User, LogOut, Sparkles, Globe2, Tag } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
 import { countries } from '@/data/locations';
 import BackButton from '@/components/ui/BackButton';
-import logoAsset from '@/assets/globalwear-logo.png.asset.json';
 import { useState, useRef, useEffect } from 'react';
 
 export default function Navbar() {
@@ -30,12 +29,12 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-border/60 bg-card/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center shrink-0" aria-label="GlobalWear - Inicio">
-          <img
-            src={logoAsset.url}
-            alt="GlobalWear"
-            className="h-10 md:h-12 w-auto object-contain"
-          />
+        <Link to="/" className="flex items-center gap-3 shrink-0" aria-label="GlobalWear - Inicio">
+          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center text-primary md:h-10 md:w-10" aria-hidden="true">
+            <Globe2 className="h-8 w-8 md:h-9 md:w-9" strokeWidth={2.4} />
+            <Tag className="absolute -bottom-0.5 -right-1 h-4 w-4 rotate-12 rounded-sm bg-card md:h-[18px] md:w-[18px]" strokeWidth={2.5} />
+          </span>
+          <span className="whitespace-nowrap text-2xl font-bold leading-none text-foreground">Global<span className="text-primary">Wear</span></span>
         </Link>
 
         {/* Back navigation */}

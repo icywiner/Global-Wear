@@ -221,7 +221,7 @@ export default function ProductsGrid() {
     : null;
 
   return (
-    <section className="px-4 pb-16 pt-8">
+    <section id="products" className="scroll-mt-24 px-4 pb-16 pt-8">
       <div className="mx-auto max-w-[1380px]">
         <div className="mb-6 rounded-3xl border border-border bg-card p-5 md:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

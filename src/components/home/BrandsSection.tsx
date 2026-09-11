@@ -6,6 +6,10 @@ import SmartImage from '@/components/ui/SmartImage';
 import { useLocation } from '@/context/LocationContext';
 import { getCatalogOffersForProduct, getCatalogProductsForLocation } from '@/data/catalog';
 
+interface BrandsSectionProps {
+  onBrandSelect?: (brand: string) => void;
+}
+
 const brandLogos: Record<string, string[]> = {
   Nike: [
     'https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg',
@@ -93,7 +97,7 @@ const featuredOrder = [
   },
 ];
 
-export default function BrandsSection() {
+export default function BrandsSection({ onBrandSelect }: BrandsSectionProps) {
   const { country, city } = useLocation();
 
   const brandsForLocation = useMemo(() => {
@@ -131,10 +135,8 @@ export default function BrandsSection() {
     }));
   }, [country?.code, city?.id]);
 
-  const dynamicLayoutClass = 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9 gap-3';
-
   return (
-    <section className="py-10 px-4">
+    <section id="brands" className="scroll-mt-24 py-10 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -145,18 +147,20 @@ export default function BrandsSection() {
               Mostrando solo marcas con productos reales disponibles en {city?.name}, {country?.name}.
             </p>
           </div>
-          <Link to="/productos" className="text-sm text-primary font-medium hover:underline flex items-center gap-0.5">
+          <Link to="/productos#products" className="text-sm text-primary font-medium hover:underline flex items-center gap-0.5">
             Ver todas <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
 
         {brandsForLocation.length > 0 ? (
-          <div className={dynamicLayoutClass}>
+          <div className="-mx-1 overflow-x-auto px-1 pb-2 scrollbar-hide">
+            <div className="flex min-w-max items-stretch gap-4 lg:min-w-0">
             {brandsForLocation.map((brand, i) => (
-              <div key={brand.name}>
-                <BrandCard brand={brand} index={i} />
+              <div key={brand.name} className="w-36 shrink-0 sm:w-40 lg:flex-1 lg:w-auto">
+                <BrandCard brand={brand} index={i} onSelect={onBrandSelect} />
               </div>
             ))}
+            </div>
           </div>
         ) : (
           <div className="rounded-2xl border border-border bg-card p-8 text-center">
@@ -172,6 +176,7 @@ export default function BrandsSection() {
 function BrandCard({
   brand,
   index,
+  onSelect,
 }: {
   brand: {
     name: string;
@@ -179,6 +184,7 @@ function BrandCard({
     logos: string[];
   };
   index: number;
+  onSelect?: (brand: string) => void;
 }) {
   const [logoFailed, setLogoFailed] = useState(false);
   const showWordmark = logoFailed || brand.logos.length === 0;
@@ -189,12 +195,13 @@ function BrandCard({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
     >
-      <Link
-        to={`/productos?marca=${brand.query}`}
-        className="group block"
+      <button
+        type="button"
+        onClick={() => onSelect?.(brand.name)}
+        className="group block w-full"
       >
-        <div className="h-[96px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">
-          <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3 overflow-hidden">
+        <div className="flex h-32 flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-gradient-to-br from-white to-slate-50 p-3 text-center shadow-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-primary/25 group-hover:shadow-lg">
+          <div className="flex h-14 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-white px-3">
             {showWordmark ? (
               <span className="text-sm font-bold tracking-tight text-foreground text-center leading-tight line-clamp-2">
                 {brand.name}
@@ -209,11 +216,11 @@ function BrandCard({
               />
             )}
           </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground group-hover:text-foreground transition-colors">
+          <p className="line-clamp-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors group-hover:text-foreground">
             {brand.name}
           </p>
         </div>
-      </Link>
+      </button>
     </motion.div>
   );
 }

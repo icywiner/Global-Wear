@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function Navbar() {
   const { country, city, setCountry, setCity, resetLocation } = useLocation();
-  const { user, displayName, signOut, loading } = useAuth();
+  const { user, displayName, isAdmin, signOut, loading } = useAuth();
   const [countryOpen, setCountryOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
@@ -51,6 +51,15 @@ export default function Navbar() {
             <Sparkles className="w-4 h-4" />
             Inicio
           </Link>
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="hidden lg:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+            >
+              Panel de administración
+            </Link>
+          )}
 
           {/* Country selector */}
           <div className="relative" ref={countryRef}>

@@ -6,6 +6,7 @@ interface AuthState {
   user: User | null;
   session: Session | null;
   displayName: string;
+  isAdmin: boolean;
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -18,25 +19,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [displayName, setDisplayName] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(true);
       if (session?.user) {
-        setTimeout(() => fetchProfile(session.user.id), 0);
+        setTimeout(() => {
+          fetchProfile(session.user.id).then(() => setLoading(false));
+        }, 0);
       } else {
         setDisplayName('');
+        setIsAdmin(false);
       }
-      setLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
-      setLoading(false);
+      if (session?.user) {
+        fetchProfile(session.user.id).then(() => setLoading(false));
+      } else {
+        setDisplayName('');
+        setIsAdmin(false);
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -45,10 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function fetchProfile(userId: string) {
     const { data } = await supabase
       .from('profiles')
-      .select('display_name')
+      .select('display_name, role')
       .eq('user_id', userId)
       .single();
-    if (data) setDisplayName(data.display_name || '');
+    setDisplayName(data?.display_name || '');
+    setIsAdmin(data?.role === 'admin');
   }
 
   const signUp = async (email: string, password: string, name: string) => {
@@ -73,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, displayName, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, displayName, isAdmin, loading, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

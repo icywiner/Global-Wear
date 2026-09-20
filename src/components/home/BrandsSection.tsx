@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SmartImage from '@/components/ui/SmartImage';
 import { useLocation } from '@/context/LocationContext';
-import { getCatalogOffersForProduct, getCatalogProductsForLocation } from '@/data/catalog';
+import { getCatalogBrandsForLocation } from '@/data/catalog';
 
 interface BrandsSectionProps {
   onBrandSelect?: (brand: string) => void;
@@ -55,12 +55,6 @@ const brandLogos: Record<string, string[]> = {
   ],
 };
 
-const brandQueryAlias: Record<string, string> = {
-  "Levi's": 'Levis',
-  'The North Face': 'North Face',
-  'New Balance': 'New Balance',
-};
-
 const featuredOrder = [
   {
     name: 'Nike',
@@ -103,23 +97,9 @@ export default function BrandsSection({ onBrandSelect }: BrandsSectionProps) {
   const brandsForLocation = useMemo(() => {
     if (!country || !city) return [];
 
-    const products = getCatalogProductsForLocation(country.code, city.id);
-    const validBrandNames = new Set<string>();
-
-    products.forEach((product) => {
-      const hasImage = Boolean(product.images?.length);
-      const offer = getCatalogOffersForProduct(product.id, country.code, city.id)[0];
-      const hasValidOffer = Boolean(
-        offer
-        && offer.price > 0
-        && Boolean(offer.store)
-        && Boolean(offer.url)
-      );
-
-      if (hasImage && hasValidOffer) {
-        validBrandNames.add(product.brand);
-      }
-    });
+    const validBrandNames = new Set(
+      getCatalogBrandsForLocation(country.code, city.id).map((item) => item.brand)
+    );
 
     const ordered = featuredOrder
       .map((item) => item.name)

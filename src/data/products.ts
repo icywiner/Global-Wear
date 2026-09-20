@@ -7,6 +7,13 @@ export interface Product {
   category: Category;
   description: string;
   images: string[];
+  officialBrand?: boolean;
+  officialProductUrl?: string;
+  officialImageUrl?: string;
+  priceSourceUrl?: string;
+  priceCheckedAt?: string;
+  country?: string;
+  city?: string;
 }
 
 export interface StoreOffer {
@@ -21,6 +28,10 @@ export interface StoreOffer {
   url: string;
   inStock: boolean;
   lastUpdated: string;
+  isVerified?: boolean;
+  storeAddress?: string;
+  storeSourceUrl?: string;
+  physicalStockVerified?: boolean;
 }
 
 export const categories: { id: Category; label: string; icon: string; image: string }[] = [

@@ -8,6 +8,7 @@ import {
   type Product,
   type StoreOffer,
 } from '@/data/products';
+import { verifiedCordobaOffers, verifiedCordobaProducts } from '@/data/verifiedCordoba';
 
 export { categories };
 export type { Category };
@@ -27,6 +28,9 @@ export interface CatalogOffer extends StoreOffer {
   countryFlag: string;
 }
 
+const allSeedProducts = [...seedProducts, ...verifiedCordobaProducts];
+const allSeedOffers = [...seedOffers, ...verifiedCordobaOffers];
+
 export interface StorePoint {
   storeKey: string;
   store: string;
@@ -40,6 +44,11 @@ export interface StorePoint {
   productsCount: number;
   minPriceUSD: number;
   maxPriceUSD: number;
+}
+
+export interface CatalogBrandSummary {
+  brand: string;
+  products: number;
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -117,7 +126,7 @@ function getStoreCoordinates(storeKey: string, cityId: string): { latitude: numb
 const variantProducts: CatalogProduct[] = [];
 const seedToVariants = new Map<string, Array<{ variantId: string; multiplier: number }>>();
 
-seedProducts.forEach((seedProduct) => {
+allSeedProducts.forEach((seedProduct) => {
   const variants = VARIANT_DEFINITIONS.map((variant, index) => {
     const variantId = index === 0 ? seedProduct.id : `${seedProduct.id}-${variant.suffix.toLowerCase()}`;
     const popularity = variant.popularityBoost + (hashString(variantId) % 40);
@@ -142,7 +151,7 @@ seedProducts.forEach((seedProduct) => {
 
 const variantOffers: CatalogOffer[] = [];
 
-seedOffers.forEach((seedOffer) => {
+allSeedOffers.forEach((seedOffer) => {
   const variants = seedToVariants.get(seedOffer.productId) || [];
 
   variants.forEach((variant) => {
@@ -167,7 +176,25 @@ seedOffers.forEach((seedOffer) => {
 
 const validOfferProductIds = new Set(
   variantOffers
-    .filter((offer) => offer.price > 0 && Boolean(offer.store) && isValidHttpUrl(offer.url) && offer.inStock)
+    .filter((offer) => {
+      if (offer.price <= 0 || !offer.store || !isValidHttpUrl(offer.url) || !offer.inStock) return false;
+      if (offer.countryCode !== 'AR' || offer.cityId !== 'cor') return true;
+
+      const product = variantProducts.find((item) => item.id === offer.productId);
+      return Boolean(
+        offer.isVerified
+        && offer.storeAddress
+        && offer.storeSourceUrl
+        && product?.officialBrand
+        && product.officialProductUrl === offer.url
+        && product.officialImageUrl
+        && product.priceSourceUrl === offer.url
+        && product.priceCheckedAt
+        && product.country === 'Argentina'
+        && product.city === 'Córdoba'
+        && isValidImageUrl(product.officialImageUrl)
+      );
+    })
     .map((offer) => offer.productId)
 );
 
@@ -181,6 +208,7 @@ export const catalogOffers: CatalogOffer[] = variantOffers.filter(
     && Boolean(offer.store)
     && isValidHttpUrl(offer.url)
     && offer.inStock
+    && (offer.countryCode !== 'AR' || offer.cityId !== 'cor' || offer.isVerified === true)
     && catalogProducts.some((product) => product.id === offer.productId)
 );
 
@@ -200,6 +228,41 @@ export function getCatalogProductsForLocation(countryCode: string, cityId: strin
   });
 }
 
+export function getCatalogBrandsForLocation(countryCode: string, cityId: string): CatalogBrandSummary[] {
+  const products = getCatalogProductsForLocation(countryCode, cityId);
+  const counts = new Map<string, number>();
+
+  products.forEach((product) => {
+    const hasLocationOffer = getCatalogOffersForProduct(product.id, countryCode, cityId).some(
+      (offer) => offer.price > 0 && Boolean(offer.store) && Boolean(offer.url)
+    );
+
+    if (hasLocationOffer) {
+      counts.set(product.brand, (counts.get(product.brand) || 0) + 1);
+    }
+  });
+
+  return [...counts.entries()]
+    .map(([brand, productCount]) => ({ brand, products: productCount }))
+    .sort((a, b) => a.brand.localeCompare(b.brand));
+}
+
+export function getCatalogLocationAudit() {
+  return countries.flatMap((country) =>
+    country.cities.map((city) => ({
+      countryCode: country.code,
+      countryName: country.name,
+      cityId: city.id,
+      cityName: city.name,
+      brands: getCatalogBrandsForLocation(country.code, city.id),
+      products: getCatalogProductsForLocation(country.code, city.id).length,
+      offers: catalogOffers.filter(
+        (offer) => offer.countryCode === country.code && offer.cityId === city.id
+      ).length,
+    }))
+  );
+}
+
 export function getCatalogOffersForProduct(productId: string, countryCode?: string, cityId?: string): CatalogOffer[] {
   return catalogOffers
     .filter((offer) => {
@@ -211,8 +274,8 @@ export function getCatalogOffersForProduct(productId: string, countryCode?: stri
     .sort((a, b) => toUSD(a.price, a.currency) - toUSD(b.price, b.currency));
 }
 
-export function getCatalogBestOffer(productId: string): CatalogOffer | null {
-  const offers = getCatalogOffersForProduct(productId);
+export function getCatalogBestOffer(productId: string, countryCode?: string, cityId?: string): CatalogOffer | null {
+  const offers = getCatalogOffersForProduct(productId, countryCode, cityId);
   return offers.length > 0 ? offers[0] : null;
 }
 
@@ -308,8 +371,14 @@ export function matchesCatalogQuery(productId: string, query: string): boolean {
     .every((token) => haystack.includes(token));
 }
 
-export function searchCatalogProducts(query: string): CatalogProduct[] {
+export function searchCatalogProducts(
+  countryCode: string,
+  cityId: string,
+  query: string
+): CatalogProduct[] {
   const normalized = query.trim();
   if (!normalized) return [];
-  return catalogProducts.filter((product) => matchesCatalogQuery(product.id, normalized));
+  return getCatalogProductsForLocation(countryCode, cityId).filter((product) =>
+    matchesCatalogQuery(product.id, normalized)
+  );
 }

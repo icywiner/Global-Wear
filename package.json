@@ -34,6 +34,9 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.21",
-    "@types/react-window": "^2.0.0"
+    "@types/react-window": "^2.0.0",
+    "drizzle-kit": "0.x",
+    "drizzle-orm": "0.x",
+    "postgres": "^3.4.9"
   }
 }

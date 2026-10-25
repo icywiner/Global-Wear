@@ -136,7 +136,7 @@ export default function ProductDetail() {
                 className="mt-4 w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity"
               >
                 <ExternalLink className="w-4 h-4" />
-                Ver en {localOffers[0].store}
+                Ver producto oficial
               </a>
               <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                 <Clock className="w-3 h-3" />
@@ -249,7 +249,7 @@ function OfferRow({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
         >
-          Ver en tienda
+          Ver producto oficial
           <ChevronRight className="w-4 h-4" />
         </a>
       </div>

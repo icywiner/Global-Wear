@@ -79,8 +79,11 @@ export default function ProductsGrid() {
 
 
   const availableProducts = useMemo(() => {
-    if (hasLocation) return getCatalogProductsForLocation(country!.code, city!.id);
-    if (normalizedQuery) return searchCatalogProducts(normalizedQuery);
+    if (hasLocation) {
+      if (normalizedQuery) return searchCatalogProducts(country!.code, city!.id, normalizedQuery);
+      return getCatalogProductsForLocation(country!.code, city!.id);
+    }
+    if (normalizedQuery) return [];
     if (selectedBrand !== 'all') return catalogProducts.filter((product) => product.brand === selectedBrand);
     return [];
   }, [country?.code, city?.id, hasLocation, normalizedQuery, selectedBrand]);
@@ -108,7 +111,7 @@ export default function ProductsGrid() {
         return true;
       })
       .map((product) => {
-        const offer = getCatalogBestOffer(product.id);
+        const offer = getCatalogBestOffer(product.id, country?.code, city?.id);
         return { product, offer };
       })
       .filter((item): item is RenderItem => Boolean(item.offer))
@@ -221,7 +224,7 @@ export default function ProductsGrid() {
     : null;
 
   return (
-    <section className="px-4 pb-16 pt-8">
+    <section id="products" className="scroll-mt-24 px-4 pb-16 pt-8">
       <div className="mx-auto max-w-[1380px]">
         <div className="mb-6 rounded-3xl border border-border bg-card p-5 md:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -432,7 +435,9 @@ export default function ProductsGrid() {
             ) : (
               <div className="rounded-2xl border border-border bg-secondary/25 p-10 text-center">
                 <p className="text-lg font-semibold text-foreground mb-1">
-                  {normalizedQuery ? `Sin resultados para "${normalizedQuery}"` : 'No hay resultados con los filtros actuales'}
+                  {normalizedQuery
+                    ? `No encontramos productos para "${normalizedQuery}"${hasLocation ? ` en ${city!.name}` : ''}.`
+                    : 'No hay resultados con los filtros actuales'}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Proba con otra palabra, marca o categoria, o cambia la ciudad seleccionada.

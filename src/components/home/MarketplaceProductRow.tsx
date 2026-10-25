@@ -54,6 +54,14 @@ export default function MarketplaceProductRow({
             <MapPin className="w-4 h-4" />
             {offer.store} · {offer.cityName}, {offer.countryName}
           </p>
+          {offer.storeAddress && (
+            <p className="text-xs text-muted-foreground mb-4">{offer.storeAddress}</p>
+          )}
+          {offer.physicalStockVerified === false && (
+            <p className="text-xs text-muted-foreground mb-4">
+              Catálogo oficial de la marca; stock físico en este local no verificado.
+            </p>
+          )}
 
           <div className="mt-auto flex flex-wrap items-center gap-2">
             <a
@@ -63,7 +71,7 @@ export default function MarketplaceProductRow({
               onClick={(event) => event.stopPropagation()}
               className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
             >
-              Ver en tienda
+              Ver producto oficial
               <ExternalLink className="w-4 h-4" />
             </a>
             <Link

@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import type { Category } from '@/data/products';
 import SmartImage from '@/components/ui/SmartImage';
+
+interface CategoriesSectionProps {
+  onCategorySelect?: (category: Category) => void;
+}
 
 const categoryCards: Array<{
   id: Category;
@@ -65,11 +68,10 @@ const categoryCards: Array<{
   },
 ];
 
-export default function CategoriesSection() {
-  const navigate = useNavigate();
+export default function CategoriesSection({ onCategorySelect }: CategoriesSectionProps) {
 
   return (
-    <section className="py-9 px-4">
+    <section id="categories" className="scroll-mt-24 py-9 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <h2 className="text-xl md:text-2xl font-bold text-foreground">Categorias destacadas</h2>
@@ -78,7 +80,7 @@ export default function CategoriesSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {categoryCards.map((cat, i) => (
-            <CategoryCard key={cat.id} card={cat} index={i} onClick={() => navigate(`/productos?categoria=${cat.id}`)} />
+            <CategoryCard key={cat.id} card={cat} index={i} onClick={() => onCategorySelect?.(cat.id)} />
           ))}
         </div>
       </div>

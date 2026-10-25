@@ -3,23 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, X, TrendingUp, ShieldCheck, Sparkles } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
-import { products } from '@/data/products';
+import { searchCatalogProducts } from '@/data/catalog';
 import SmartImage from '@/components/ui/SmartImage';
 
 const quickSearches = ['Nike Air Force 1', 'Adidas Samba', "Levi's 501", 'Air Max 90', 'New Balance 574', 'Vans Old Skool', 'Converse Chuck 70', 'Puma Suede'];
 
 export default function HeroSection() {
-  const { country } = useLocation();
+  const { country, city } = useLocation();
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const suggestions = query.length >= 2
-    ? products.filter(p =>
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.brand.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 6)
+    ? country && city
+      ? searchCatalogProducts(country.code, city.id, query).slice(0, 6)
+      : []
     : [];
 
   useEffect(() => {
@@ -147,7 +146,9 @@ export default function HeroSection() {
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
             <div className="rounded-2xl border border-border bg-white/80 p-4">
               <p className="text-xs text-muted-foreground mb-1">Ubicacion activa</p>
-              <p className="font-semibold text-foreground">{country?.flag} {country?.name || 'Selecciona un pais'}</p>
+              <p className="font-semibold text-foreground">
+                {country?.flag} {country?.name || 'Selecciona un pais'}{city ? ` - ${city.name}` : ''}
+              </p>
             </div>
             <div className="rounded-2xl border border-border bg-white/80 p-4 flex items-start gap-3">
               <ShieldCheck className="w-4 h-4 text-primary mt-0.5" />

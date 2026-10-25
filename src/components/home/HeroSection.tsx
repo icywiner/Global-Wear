@@ -84,7 +84,7 @@ export default function HeroSection() {
                 onChange={e => { setQuery(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => query.length >= 2 && setShowSuggestions(true)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch(query)}
-                className="w-full bg-white/95 border border-border rounded-2xl pl-12 pr-10 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent shadow-md transition-shadow hover:shadow-lg"
+                className="w-full bg-card/95 border border-border rounded-2xl pl-12 pr-10 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent shadow-md transition-shadow hover:shadow-lg"
               />
               {query && (
                 <button
@@ -113,7 +113,7 @@ export default function HeroSection() {
                         sources={p.images}
                         alt={p.name}
                         imgClassName="w-full h-full object-contain"
-                        skeletonClassName="w-full h-full rounded bg-slate-200/70 animate-pulse"
+                        skeletonClassName="w-full h-full rounded bg-muted animate-pulse"
                       />
                     </div>
                     <div>
@@ -145,18 +145,18 @@ export default function HeroSection() {
           </motion.div>
 
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
-            <div className="rounded-2xl border border-border bg-white/80 p-4">
+            <div className="rounded-2xl border border-border bg-card/80 p-4">
               <p className="text-xs text-muted-foreground mb-1">Ubicacion activa</p>
               <p className="font-semibold text-foreground">{country?.flag} {country?.name || 'Selecciona un pais'}</p>
             </div>
-            <div className="rounded-2xl border border-border bg-white/80 p-4 flex items-start gap-3">
+            <div className="rounded-2xl border border-border bg-card/80 p-4 flex items-start gap-3">
               <ShieldCheck className="w-4 h-4 text-primary mt-0.5" />
               <div>
                 <p className="font-semibold text-foreground text-sm">Fuentes verificadas</p>
                 <p className="text-xs text-muted-foreground">Solo tiendas oficiales y enlaces reales</p>
               </div>
             </div>
-            <div className="rounded-2xl border border-border bg-white/80 p-4 flex items-start gap-3">
+            <div className="rounded-2xl border border-border bg-card/80 p-4 flex items-start gap-3">
               <TrendingUp className="w-4 h-4 text-primary mt-0.5" />
               <div>
                 <p className="font-semibold text-foreground text-sm">Comparacion inteligente</p>

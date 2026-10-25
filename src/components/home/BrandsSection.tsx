@@ -194,7 +194,7 @@ function BrandCard({
         className="group block"
       >
         <div className="h-[96px] rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-border p-4 flex flex-col justify-between shadow-sm group-hover:shadow-lg group-hover:border-primary/25 group-hover:-translate-y-0.5 transition-all duration-300">
-          <div className="h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center px-3 overflow-hidden">
+          <div className="h-12 rounded-xl bg-card border border-border flex items-center justify-center px-3 overflow-hidden">
             {showWordmark ? (
               <span className="text-sm font-bold tracking-tight text-foreground text-center leading-tight line-clamp-2">
                 {brand.name}
@@ -205,7 +205,7 @@ function BrandCard({
                 alt={brand.name}
                 onAllFailed={() => setLogoFailed(true)}
                 imgClassName="h-7 w-full object-contain"
-                skeletonClassName="h-5 w-20 rounded bg-slate-200/70 animate-pulse"
+                skeletonClassName="h-5 w-20 rounded bg-muted animate-pulse"
               />
             )}
           </div>

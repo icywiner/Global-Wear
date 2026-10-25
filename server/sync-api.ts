@@ -55,7 +55,7 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, result });
     } catch (err: any) {
       console.error('Sync error:', err);
-      return sendJson(res, 500, { ok: false, error: String(err?.message || err) });
+      return sendJson(res, 500, { ok: false, error: 'Internal server error' });
     }
   }
 

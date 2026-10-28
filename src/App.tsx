@@ -7,6 +7,7 @@ import Browse from './pages/Browse';
 import ProductDetail from './pages/ProductDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdminBackup from './pages/AdminBackup';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/producto/:id" element={<ProductDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
+          <Route path="/admin/backup" element={<AdminBackup />} />
         </Routes>
       </main>
       <Footer />

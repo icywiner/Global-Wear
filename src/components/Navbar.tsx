@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { ChevronDown, User, LogOut, Sparkles } from 'lucide-react';
+import { ChevronDown, User, LogOut, Sparkles, Database } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
 import { useAuth } from '@/context/AuthContext';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { countries } from '@/data/locations';
 import BackButton from '@/components/ui/BackButton';
 import logoAsset from '@/assets/globalwear-logo.png.asset.json';
@@ -10,6 +11,7 @@ import { useState, useRef, useEffect } from 'react';
 export default function Navbar() {
   const { country, city, setCountry, setCity, resetLocation } = useLocation();
   const { user, displayName, signOut, loading } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const [countryOpen, setCountryOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
@@ -132,6 +134,16 @@ export default function Navbar() {
                       <p className="text-sm font-semibold text-foreground truncate">{displayName || 'Usuario'}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
+                    {isAdmin && (
+                      <Link
+                        to="/admin/backup"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full text-left px-4 py-2.5 text-sm text-foreground hover:bg-accent/10 flex items-center gap-2 transition-colors"
+                      >
+                        <Database className="w-4 h-4" />
+                        Backup completo
+                      </Link>
+                    )}
                     <button
                       onClick={() => { signOut(); setUserMenuOpen(false); }}
                       className="w-full text-left px-4 py-2.5 text-sm text-danger hover:bg-danger/10 flex items-center gap-2 transition-colors"

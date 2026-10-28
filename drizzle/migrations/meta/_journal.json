@@ -8,6 +8,13 @@
       "when": 1792770102447,
       "tag": "0000_restrict_profiles_select",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793207668941,
+      "tag": "0001_user_roles",
+      "breakpoints": true
     }
   ]
 }

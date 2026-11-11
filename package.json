@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate:supabase": "tsx --env-file=.env scripts/migrate-to-supabase.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",
@@ -37,6 +38,7 @@
     "@types/react-window": "^2.0.0",
     "drizzle-kit": "0.x",
     "drizzle-orm": "0.x",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "tsx": "^4.19.4"
   }
 }

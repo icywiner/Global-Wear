@@ -4,7 +4,7 @@ import { MessageCircle, X, Send, Bot, User, Sparkles } from 'lucide-react';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+const CHAT_URL = import.meta.env.VITE_CHAT_URL || '';
 
 const SUGGESTIONS = [
   '¿Dónde están más baratas las Nike Air Force 1?',
@@ -34,11 +34,14 @@ export default function AIChatWidget() {
     let assistantSoFar = '';
 
     try {
+      if (!CHAT_URL) {
+        throw new Error('Chat no configurado. Definí VITE_CHAT_URL (Cloud Function / endpoint Firebase).');
+      }
+
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ messages: [...messages, userMsg] }),
       });

@@ -1,10 +1,18 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  updateProfile,
+  type User,
+} from 'firebase/auth';
+import { auth } from '@/integrations/firebase/client';
+import { ensureProfile, getProfile } from '@/services/firestore/profiles';
 
 interface AuthState {
   user: User | null;
-  session: Session | null;
+  session: { access_token: string } | null;
   displayName: string;
   isAdmin: boolean;
   loading: boolean;
@@ -17,70 +25,72 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<{ access_token: string } | null>(null);
   const [displayName, setDisplayName] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
+      setUser(nextUser);
       setLoading(true);
-      if (session?.user) {
-        setTimeout(() => {
-          fetchProfile(session.user.id).then(() => setLoading(false));
-        }, 0);
-      } else {
-        setDisplayName('');
-        setIsAdmin(false);
-      }
-    });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).then(() => setLoading(false));
-      } else {
+      if (!nextUser) {
+        setSession(null);
         setDisplayName('');
         setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const token = await nextUser.getIdToken();
+        setSession({ access_token: token });
+
+        const profile = await ensureProfile(nextUser.uid, {
+          displayName: nextUser.displayName || nextUser.email?.split('@')[0] || 'Usuario',
+          email: nextUser.email,
+        });
+
+        setDisplayName(profile.displayName || nextUser.displayName || '');
+        setIsAdmin(profile.role === 'admin');
+      } catch {
+        setDisplayName(nextUser.displayName || '');
+        setIsAdmin(false);
+        setSession(null);
+      } finally {
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
-  async function fetchProfile(userId: string) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('display_name, role')
-      .eq('user_id', userId)
-      .single();
-    setDisplayName(data?.display_name || '');
-    setIsAdmin(data?.role === 'admin');
-  }
-
   const signUp = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { display_name: name },
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    });
-    return { error: error?.message ?? null };
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(credential.user, { displayName: name });
+      await ensureProfile(credential.user.uid, {
+        displayName: name,
+        email: credential.user.email,
+      });
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'No se pudo registrar' };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'No se pudo iniciar sesión' };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await firebaseSignOut(auth);
   };
 
   return (
@@ -94,4 +104,10 @@ export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
+}
+
+/** Utilidad opcional para refrescar perfil admin tras cambios en Firestore. */
+export async function refreshAdminFlag(userId: string): Promise<boolean> {
+  const profile = await getProfile(userId);
+  return profile?.role === 'admin';
 }

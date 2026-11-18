@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SmartImage from '@/components/ui/SmartImage';
 import { useLocation } from '@/context/LocationContext';
+import { useCatalog } from '@/context/CatalogContext';
 import { getCatalogBrandsForLocation } from '@/data/catalog';
 
 interface BrandsSectionProps {
@@ -93,6 +94,7 @@ const featuredOrder = [
 
 export default function BrandsSection({ onBrandSelect }: BrandsSectionProps) {
   const { country, city } = useLocation();
+  const { revision } = useCatalog();
 
   const brandsForLocation = useMemo(() => {
     if (!country || !city) return [];
@@ -113,7 +115,7 @@ export default function BrandsSection({ onBrandSelect }: BrandsSectionProps) {
       query: encodeURIComponent(name),
       logos: Array.isArray(brandLogos[name]) ? brandLogos[name] : [],
     }));
-  }, [country?.code, city?.id]);
+  }, [country?.code, city?.id, revision]);
 
   return (
     <section id="brands" className="scroll-mt-24 py-10 px-4">

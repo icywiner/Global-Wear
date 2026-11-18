@@ -1,26 +1,20 @@
-import { supabase } from '@/integrations/supabase/client';
-import { createClient as createServerClient } from '@supabase/supabase-js';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { storage } from '@/integrations/firebase/client';
 import { products, type Product } from '@/data/products';
 import { resolveValidImageSource, buildImageCandidates } from '@/lib/imageValidation';
 import { imageLikelyMatchesProduct } from '@/services/imageHeuristics';
 import { parseOfficialProduct } from '@/services/officialSourceParser';
+import { logCatalogSyncError } from '@/services/firestore/catalogSyncErrors';
+import { slugify } from '@/services/firestore/helpers';
 
-function slugify(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+function productStoragePath(product: Product, country = 'global') {
+  const brand = slugify(product.brand || 'brand');
+  return `products/${brand}/${country}/${slugify(product.id)}.jpg`;
 }
 
-// If running server-side with a service role key, create a privileged client
-const SERVER_SUPABASE_URL = typeof process !== 'undefined' ? process.env.SUPABASE_URL || process.env.SUPABASE_API_URL : undefined;
-const SERVER_SUPABASE_SERVICE_KEY = typeof process !== 'undefined' ? process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY : undefined;
-const serverSupabase = SERVER_SUPABASE_URL && SERVER_SUPABASE_SERVICE_KEY ? createServerClient(SERVER_SUPABASE_URL as string, SERVER_SUPABASE_SERVICE_KEY as string, { auth: { persistSession: false } }) : null;
-
-async function logErrorToDb(payload: { product_id: string; country?: string; reason?: string; message?: string; details?: any }) {
-  if (!serverSupabase) return;
-  try {
-    await serverSupabase.from('catalog_sync_errors').insert([{ product_id: payload.product_id, country: payload.country || null, reason: payload.reason || null, message: payload.message || null, details: payload.details || null }]);
-  } catch (e) {
-    // ignore logging errors
-  }
+function publicUrlForPath(path: string) {
+  const bucket = storage.app.options.storageBucket;
+  return `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(path)}?alt=media`;
 }
 
 async function existsPublicUrl(url: string, timeout = 4000): Promise<boolean> {
@@ -36,35 +30,39 @@ async function existsPublicUrl(url: string, timeout = 4000): Promise<boolean> {
 }
 
 export async function getSyncedImageUrl(product: Product, country = 'global') {
-  const brand = slugify(product.brand || 'brand');
-  const key = `${brand}/${country}/${slugify(product.id)}.jpg`;
+  const key = productStoragePath(product, country);
 
   try {
-    const { data } = supabase.storage.from('products').getPublicUrl(key);
-    const publicUrl = data?.publicUrl || null;
-    if (publicUrl && await existsPublicUrl(publicUrl)) return publicUrl;
-  } catch (e) {
-    // ignore
-  }
+    const publicUrl = publicUrlForPath(key);
+    if (await existsPublicUrl(publicUrl)) return publicUrl;
 
-  return null;
+    // Fallback: pedir URL firmada/pública al SDK si el objeto existe
+    const url = await getDownloadURL(ref(storage, key));
+    return url;
+  } catch {
+    return null;
+  }
 }
 
-export async function syncProductImageToStorage(product: Product, country = 'global', imageMeta: Array<{ src: string; alt?: string; title?: string }> | null = null, opts?: { minScore?: number }) {
-  // Find a valid source from the product's declared images
+export async function syncProductImageToStorage(
+  product: Product,
+  country = 'global',
+  imageMeta: Array<{ src: string; alt?: string; title?: string }> | null = null,
+  opts?: { minScore?: number }
+) {
   const candidate = await resolveValidImageSource(buildImageCandidates(product.images || []));
   if (!candidate) {
     return { ok: false, message: 'No valid source found' };
   }
 
-  // Heuristic validation: ensure image likely belongs to product
   try {
-    const heur = await imageLikelyMatchesProduct(product, candidate, product.sourceUrl, imageMeta, opts);
+    const sourceUrl = product.officialProductUrl || product.priceSourceUrl;
+    const heur = await imageLikelyMatchesProduct(product, candidate, sourceUrl, imageMeta, opts);
     if (!heur.ok) {
       return { ok: false, message: 'Heuristics failed', details: heur };
     }
-  } catch (e: any) {
-    // fallback to proceed if heuristics fails unexpectedly
+  } catch {
+    // continuar si falla la heurística
   }
 
   try {
@@ -72,29 +70,25 @@ export async function syncProductImageToStorage(product: Product, country = 'glo
     if (!blobRes.ok) return { ok: false, message: 'Failed to fetch source' };
     const blob = await blobRes.blob();
 
-    const brand = slugify(product.brand || 'brand');
-    const key = `${brand}/${country}/${slugify(product.id)}.jpg`;
+    const key = productStoragePath(product, country);
+    const objectRef = ref(storage, key);
 
-    const { error: uploadError } = await supabase.storage.from('products').upload(key, blob, {
-      contentType: blob.type || 'image/jpeg',
-      cacheControl: 'public, max-age=31536000',
-      upsert: false,
-    } as any);
-
-    if (uploadError) {
-      // If object already exists, return existing public url
-      if (uploadError.message && /already exists/i.test(uploadError.message)) {
-        const { data } = supabase.storage.from('products').getPublicUrl(key);
-        return { ok: true, url: data?.publicUrl || null };
-      }
-
-      return { ok: false, message: uploadError.message };
+    try {
+      const existing = await getDownloadURL(objectRef);
+      return { ok: true, url: existing };
+    } catch {
+      // no existe, subir
     }
 
-    const { data } = supabase.storage.from('products').getPublicUrl(key);
-    return { ok: true, url: data?.publicUrl || null };
-  } catch (e: any) {
-    return { ok: false, message: e?.message || String(e) };
+    await uploadBytes(objectRef, blob, {
+      contentType: blob.type || 'image/jpeg',
+      cacheControl: 'public, max-age=31536000',
+    });
+
+    const url = await getDownloadURL(objectRef);
+    return { ok: true, url };
+  } catch (e: unknown) {
+    return { ok: false, message: e instanceof Error ? e.message : String(e) };
   }
 }
 
@@ -107,25 +101,21 @@ export async function syncCatalog(options?: { country?: string; brands?: string[
   for (const p of products) {
     if (allowedBrands && !allowedBrands.has(p.brand.toLowerCase())) continue;
     let productToUse: Product = p;
-    // Optionally fetch fresh data from the official product page
-    if (options?.fetchOfficial && p.sourceUrl) {
+
+    const officialUrl = p.officialProductUrl || p.priceSourceUrl;
+    if (options?.fetchOfficial && officialUrl) {
       try {
-        const parsed = await parseOfficialProduct(p.sourceUrl);
+        const parsed = await parseOfficialProduct(officialUrl);
         if (parsed) {
-          // merge parsed fields without losing original data
-          productToUse = { ...p } as Product;
+          productToUse = { ...p };
           if (parsed.name) productToUse.name = parsed.name;
           if (parsed.brand) productToUse.brand = parsed.brand;
-          if (parsed.category) productToUse.category = parsed.category as any;
-          if (parsed.price) productToUse.price = parsed.price as any;
-          if (parsed.currency) productToUse.currency = parsed.currency as any;
-          if (parsed.officialUrl) productToUse.sourceUrl = parsed.officialUrl;
-          if (parsed.imageCandidates && parsed.imageCandidates.length) productToUse.images = parsed.imageCandidates as any;
-          // attach image meta for heuristics (non-standard prop)
-          (productToUse as any)._imageMeta = parsed.imageMeta || null;
+          if (parsed.category) productToUse.category = parsed.category as Product['category'];
+          if (parsed.imageCandidates?.length) productToUse.images = parsed.imageCandidates;
+          (productToUse as Product & { _imageMeta?: unknown })._imageMeta = parsed.imageMeta || null;
         }
       } catch {
-        // failed to parse official page, continue with original product
+        // continuar con el producto original
       }
     }
 
@@ -135,31 +125,40 @@ export async function syncCatalog(options?: { country?: string; brands?: string[
       continue;
     }
 
-    // attempt upload
-    const res = await syncProductImageToStorage(productToUse, country, (productToUse as any)._imageMeta || null, { minScore: 3 });
+    const res = await syncProductImageToStorage(
+      productToUse,
+      country,
+      (productToUse as Product & { _imageMeta?: Array<{ src: string; alt?: string; title?: string }> })._imageMeta || null,
+      { minScore: 3 }
+    );
     results.push({ id: p.id, ok: !!res.ok, url: res.ok ? res.url : undefined, message: res.ok ? undefined : res.message });
+
     if (!res.ok) {
-      // Log failure to DB for review (best-effort)
       try {
-        await logErrorToDb({ product_id: p.id, country, reason: res.message || 'sync-failed', message: res.message || null, details: (res as any).details || null });
+        await logCatalogSyncError({
+          productId: p.id,
+          country,
+          reason: res.message || 'sync-failed',
+          message: res.message || undefined,
+          details: (res as { details?: Record<string, unknown> }).details || null,
+        });
       } catch {
         // ignore
       }
     }
   }
 
-  // Save a simple index file with mapping
   const index = results.reduce((acc, r) => {
     acc[r.id] = { ok: r.ok, url: r.url || null, message: r.message || null };
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, { ok: boolean; url: string | null; message: string | null }>);
 
   try {
     const blob = new Blob([JSON.stringify(index, null, 2)], { type: 'application/json' });
-    const path = `catalogs/${country}/index.json`;
-    await supabase.storage.from('products').upload(path, blob, { contentType: 'application/json', upsert: true } as any);
-  } catch (e) {
-    // ignore index upload errors for now
+    const path = `products/catalogs/${country}/index.json`;
+    await uploadBytes(ref(storage, path), blob, { contentType: 'application/json' });
+  } catch {
+    // ignore index upload errors
   }
 
   return results;
@@ -167,10 +166,9 @@ export async function syncCatalog(options?: { country?: string; brands?: string[
 
 export async function fetchCatalogIndex(country = 'global') {
   try {
-    const path = `catalogs/${country}/index.json`;
-    const { data } = supabase.storage.from('products').getPublicUrl(path);
-    if (!data?.publicUrl) return null;
-    const res = await fetch(data.publicUrl);
+    const path = `products/catalogs/${country}/index.json`;
+    const url = await getDownloadURL(ref(storage, path));
+    const res = await fetch(url);
     if (!res.ok) return null;
     return await res.json();
   } catch {

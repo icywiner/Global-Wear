@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, X, TrendingUp, ShieldCheck, Sparkles } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
+import { useCatalog } from '@/context/CatalogContext';
 import { searchCatalogProducts } from '@/data/catalog';
 import SmartImage from '@/components/ui/SmartImage';
 
@@ -10,16 +11,16 @@ const quickSearches = ['Nike Air Force 1', 'Adidas Samba', "Levi's 501", 'Air Ma
 
 export default function HeroSection() {
   const { country, city } = useLocation();
+  const { revision } = useCatalog();
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const suggestions = query.length >= 2
-    ? country && city
-      ? searchCatalogProducts(country.code, city.id, query).slice(0, 6)
-      : []
-    : [];
+  const suggestions = useMemo(() => {
+    if (query.length < 2 || !country || !city) return [];
+    return searchCatalogProducts(country.code, city.id, query).slice(0, 6);
+  }, [query, country?.code, city?.id, revision]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

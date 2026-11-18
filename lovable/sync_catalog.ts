@@ -1,8 +1,9 @@
-// Lovable / Edge function (Deno) to run catalog synchronization server-side
-// Reads secrets from environment: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_SYNC_TOKEN
-// Protects endpoint by requiring Authorization: Bearer <ADMIN_SYNC_TOKEN>
+// Edge/Deno sync hacia Firebase Storage (reemplaza Supabase Storage).
+// Secrets: FIREBASE_STORAGE_BUCKET, FIREBASE_WEB_API_KEY, ADMIN_SYNC_TOKEN
+// Opcional: usa la app web + reglas de Storage abiertas para upload, o un token OAuth.
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.101.1/+esm';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js';
 import { products, offers } from '../src/data/products.ts';
 
 function slugify(value: string) {
@@ -27,10 +28,9 @@ async function headOk(url: string, timeout = 4500) {
 }
 
 async function resolveValidImageSource(sources: string[]) {
-  const candidates = [...new Set((sources || []).map(s => s?.trim()).filter(Boolean))];
+  const candidates = [...new Set((sources || []).map((s) => s?.trim()).filter(Boolean))];
   for (const c of candidates) {
     if (await headOk(c)) return c;
-    // fallback: try GET and check content-type
     try {
       const r = await fetch(c, { method: 'GET' });
       if (!r.ok) continue;
@@ -47,49 +47,63 @@ export default async function (req: Request) {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204 });
 
   const adminToken = Deno.env.get('ADMIN_SYNC_TOKEN');
-  if (!adminToken) return new Response(JSON.stringify({ error: 'ADMIN_SYNC_TOKEN not configured' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+  if (!adminToken) {
+    return new Response(JSON.stringify({ error: 'ADMIN_SYNC_TOKEN not configured' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
   const auth = req.headers.get('authorization') || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
-  if (token !== adminToken) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-
-  const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    return new Response(JSON.stringify({ error: 'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not configured' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+  if (token !== adminToken) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const firebaseConfig = {
+    apiKey: Deno.env.get('FIREBASE_WEB_API_KEY') || 'AIzaSyAkVGlTq-KLe443x1zprcdyPVfM1k9234Y',
+    authDomain: Deno.env.get('FIREBASE_AUTH_DOMAIN') || 'global-wear.firebaseapp.com',
+    projectId: Deno.env.get('FIREBASE_PROJECT_ID') || 'global-wear',
+    storageBucket: Deno.env.get('FIREBASE_STORAGE_BUCKET') || 'global-wear.firebasestorage.app',
+    messagingSenderId: Deno.env.get('FIREBASE_MESSAGING_SENDER_ID') || '211115249334',
+    appId: Deno.env.get('FIREBASE_APP_ID') || '1:211115249334:web:4cba2d3541c6db03c6a017',
+  };
 
-  const log: any = { startedAt: new Date().toISOString(), items: [] };
+  const app = initializeApp(firebaseConfig);
+  const storage = getStorage(app);
+
+  const log: {
+    startedAt: string;
+    finishedAt?: string;
+    items: Array<Record<string, unknown>>;
+  } = { startedAt: new Date().toISOString(), items: [] };
 
   for (const p of products) {
-    const productOffers = offers.filter(o => o.productId === p.id);
+    const productOffers = offers.filter((o) => o.productId === p.id);
     if (productOffers.length === 0) {
       log.items.push({ id: p.id, ok: false, reason: 'no-offers' });
       continue;
     }
 
-    // pick a canonical image for the product (validate among declared images)
     const candidateUrl = await resolveValidImageSource(p.images || []);
 
     for (const off of productOffers) {
       const country = (off.countryCode || 'global').toLowerCase();
       const brand = slugify(p.brand || 'brand');
-      const key = `${brand}/${country}/${slugify(p.id)}.jpg`;
+      const key = `products/${brand}/${country}/${slugify(p.id)}.jpg`;
+      const objectRef = ref(storage, key);
 
       try {
-        const { data } = supabase.storage.from('products').getPublicUrl(key);
-        const existingUrl = data?.publicUrl || null;
-        if (existingUrl) {
-          // verify reachable
-          if (await headOk(existingUrl)) {
-            log.items.push({ id: p.id, country, ok: true, url: existingUrl, message: 'already-synced' });
-            continue;
-          }
+        const existingUrl = await getDownloadURL(objectRef);
+        if (await headOk(existingUrl)) {
+          log.items.push({ id: p.id, country, ok: true, url: existingUrl, message: 'already-synced' });
+          continue;
         }
-      } catch (e) {
-        // ignore and try upload
+      } catch {
+        // no existe
       }
 
       if (!candidateUrl) {
@@ -101,48 +115,56 @@ export default async function (req: Request) {
         const res = await fetch(candidateUrl);
         if (!res.ok) throw new Error('fetch-failed');
         const ab = await res.arrayBuffer();
-        const uint8 = new Uint8Array(ab);
-
-        const upload = await supabase.storage.from('products').upload(key, uint8, { contentType: res.headers.get('content-type') || 'image/jpeg', cacheControl: 'public, max-age=31536000', upsert: false } as any);
-        if (upload.error) {
-          // if already exists, get url
-          if (/already exists/i.test(String(upload.error.message || ''))) {
-            const { data } = supabase.storage.from('products').getPublicUrl(key);
-            log.items.push({ id: p.id, country, ok: true, url: data?.publicUrl || null, message: 'exists' });
-            continue;
-          }
-          throw upload.error;
-        }
-
-        const { data: pub } = supabase.storage.from('products').getPublicUrl(key);
-        const finalUrl = pub?.publicUrl || null;
+        await uploadBytes(objectRef, new Uint8Array(ab), {
+          contentType: res.headers.get('content-type') || 'image/jpeg',
+          cacheControl: 'public, max-age=31536000',
+        });
+        const finalUrl = await getDownloadURL(objectRef);
         log.items.push({ id: p.id, country, ok: true, url: finalUrl, message: 'uploaded' });
-      } catch (e: any) {
-        log.items.push({ id: p.id, country, ok: false, reason: 'upload-failed', error: String(e?.message || e) });
+      } catch (e: unknown) {
+        log.items.push({
+          id: p.id,
+          country,
+          ok: false,
+          reason: 'upload-failed',
+          error: e instanceof Error ? e.message : String(e),
+        });
       }
     }
   }
 
-  // build index by country
-  const indexByCountry: Record<string, any> = {};
+  const indexByCountry: Record<string, Record<string, unknown>> = {};
   for (const item of log.items) {
-    const country = item.country || 'global';
+    const country = String(item.country || 'global');
     indexByCountry[country] = indexByCountry[country] || {};
-    indexByCountry[country][item.id] = { ok: item.ok, url: item.url || null, message: item.message || item.reason || null };
+    indexByCountry[country][String(item.id)] = {
+      ok: item.ok,
+      url: item.url || null,
+      message: item.message || item.reason || null,
+    };
   }
 
   for (const country of Object.keys(indexByCountry)) {
     const json = JSON.stringify(indexByCountry[country], null, 2);
-    const key = `catalogs/${country}/index.json`;
+    const key = `products/catalogs/${country}/index.json`;
     try {
-      await supabase.storage.from('products').upload(key, new TextEncoder().encode(json), { contentType: 'application/json', upsert: true } as any);
+      await uploadBytes(ref(storage, key), new TextEncoder().encode(json), {
+        contentType: 'application/json',
+      });
     } catch {
       // ignore
     }
   }
 
   log.finishedAt = new Date().toISOString();
-  const summary = { totalProducts: products.length, processed: log.items.length, successes: log.items.filter((i: any) => i.ok).length, failures: log.items.filter((i: any) => !i.ok).length };
+  const summary = {
+    totalProducts: products.length,
+    processed: log.items.length,
+    successes: log.items.filter((i) => i.ok).length,
+    failures: log.items.filter((i) => !i.ok).length,
+  };
 
-  return new Response(JSON.stringify({ ok: true, summary, items: log.items }), { headers: { 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify({ ok: true, summary, items: log.items }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }

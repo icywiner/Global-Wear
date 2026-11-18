@@ -8,16 +8,17 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "migrate:supabase": "tsx --env-file=.env scripts/migrate-to-supabase.ts"
+    "migrate:firestore": "tsx --env-file=.env scripts/migrate-to-firestore.ts",
+    "migrate:firestore:force": "tsx --env-file=.env scripts/migrate-to-firestore.ts --force"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.101.1",
     "@types/node": "^25.5.2",
     "@types/react": "18",
     "@types/react-dom": "18",
     "@vitejs/plugin-react-swc": "^4.3.0",
     "autoprefixer": "^10.4.27",
     "clsx": "^2.1.1",
+    "firebase": "^13.4.0",
     "framer-motion": "^11",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.7.0",

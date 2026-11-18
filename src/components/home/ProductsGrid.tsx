@@ -3,6 +3,7 @@ import { FixedSizeList as List, type ListChildComponentProps } from 'react-windo
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLocation } from '@/context/LocationContext';
+import { useCatalog } from '@/context/CatalogContext';
 import {
   categories,
   getCatalogBestOffer,
@@ -51,6 +52,7 @@ function ProductRow({ index, style, data }: ListChildComponentProps<RowData>) {
 
 export default function ProductsGrid() {
   const { country, city } = useLocation();
+  const { revision } = useCatalog();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(() => {
     const category = searchParams.get('categoria') as Category | null;
@@ -86,11 +88,11 @@ export default function ProductsGrid() {
     if (normalizedQuery) return [];
     if (selectedBrand !== 'all') return catalogProducts.filter((product) => product.brand === selectedBrand);
     return [];
-  }, [country?.code, city?.id, hasLocation, normalizedQuery, selectedBrand]);
+  }, [country?.code, city?.id, hasLocation, normalizedQuery, selectedBrand, revision]);
 
   const suggestionList = useMemo(
     () => (hasLocation ? getCatalogSuggestions(country!.code, city!.id).slice(0, 40) : []),
-    [country?.code, city?.id, hasLocation]
+    [country?.code, city?.id, hasLocation, revision]
   );
 
   const brands = useMemo(() => {

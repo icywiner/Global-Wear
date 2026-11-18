@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { useLocation } from '@/context/LocationContext';
+import { useCatalog } from '@/context/CatalogContext';
 import {
   catalogOffers,
   catalogProducts,
@@ -23,10 +24,15 @@ import {
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const { country, city } = useLocation();
+  const { revision } = useCatalog();
   const [imgError, setImgError] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
 
-  const product = catalogProducts.find(p => p.id === id);
+  const product = useMemo(
+    () => catalogProducts.find((p) => p.id === id),
+    [id, revision]
+  );
+
   if (!product) return <Navigate to="/" replace />;
 
   const localOffers = country && city

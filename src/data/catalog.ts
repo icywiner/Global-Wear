@@ -28,9 +28,6 @@ export interface CatalogOffer extends StoreOffer {
   countryFlag: string;
 }
 
-const allSeedProducts = [...seedProducts, ...verifiedCordobaProducts];
-const allSeedOffers = [...seedOffers, ...verifiedCordobaOffers];
-
 export interface StorePoint {
   storeKey: string;
   store: string;
@@ -60,7 +57,6 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
   cor: { lat: -31.4201, lng: -64.1888 },
 };
 
-// Solo productos reales: sin variantes generadas ni precios calculados.
 const VARIANT_DEFINITIONS = [
   { suffix: '', multiplier: 1, popularityBoost: 100 },
 ];
@@ -123,96 +119,145 @@ function getStoreCoordinates(storeKey: string, cityId: string): { latitude: numb
   };
 }
 
-const variantProducts: CatalogProduct[] = [];
-const seedToVariants = new Map<string, Array<{ variantId: string; multiplier: number }>>();
+function buildCatalog(sourceProducts: Product[], sourceOffers: StoreOffer[]) {
+  const variantProducts: CatalogProduct[] = [];
+  const seedToVariants = new Map<string, Array<{ variantId: string; multiplier: number }>>();
 
-allSeedProducts.forEach((seedProduct) => {
-  const variants = VARIANT_DEFINITIONS.map((variant, index) => {
-    const variantId = index === 0 ? seedProduct.id : `${seedProduct.id}-${variant.suffix.toLowerCase()}`;
-    const popularity = variant.popularityBoost + (hashString(variantId) % 40);
+  sourceProducts.forEach((seedProduct) => {
+    const variants = VARIANT_DEFINITIONS.map((variant, index) => {
+      const variantId = index === 0 ? seedProduct.id : `${seedProduct.id}-${variant.suffix.toLowerCase()}`;
+      const popularity = variant.popularityBoost + (hashString(variantId) % 40);
 
-    const product: CatalogProduct = {
-      ...seedProduct,
-      id: variantId,
-      name: variant.suffix ? `${seedProduct.name} ${variant.suffix}` : seedProduct.name,
-      description: variant.suffix
-        ? `${seedProduct.description} Edicion ${variant.suffix.toLowerCase()} con stock internacional.`
-        : seedProduct.description,
-      popularity,
-      seedProductId: seedProduct.id,
-    };
+      const product: CatalogProduct = {
+        ...seedProduct,
+        id: variantId,
+        name: variant.suffix ? `${seedProduct.name} ${variant.suffix}` : seedProduct.name,
+        description: variant.suffix
+          ? `${seedProduct.description} Edicion ${variant.suffix.toLowerCase()} con stock internacional.`
+          : seedProduct.description,
+        popularity,
+        seedProductId: seedProduct.id,
+      };
 
-    variantProducts.push(product);
-    return { variantId, multiplier: variant.multiplier };
+      variantProducts.push(product);
+      return { variantId, multiplier: variant.multiplier };
+    });
+
+    seedToVariants.set(seedProduct.id, variants);
   });
 
-  seedToVariants.set(seedProduct.id, variants);
-});
+  const variantOffers: CatalogOffer[] = [];
 
-const variantOffers: CatalogOffer[] = [];
+  sourceOffers.forEach((seedOffer) => {
+    const variants = seedToVariants.get(seedOffer.productId) || [];
 
-allSeedOffers.forEach((seedOffer) => {
-  const variants = seedToVariants.get(seedOffer.productId) || [];
+    variants.forEach((variant) => {
+      const storeKey = `${seedOffer.store}|${seedOffer.countryCode}|${seedOffer.cityId}`;
+      const coords = getStoreCoordinates(storeKey, seedOffer.cityId);
 
-  variants.forEach((variant) => {
-    const storeKey = `${seedOffer.store}|${seedOffer.countryCode}|${seedOffer.cityId}`;
-    const coords = getStoreCoordinates(storeKey, seedOffer.cityId);
+      const offer: CatalogOffer = {
+        ...seedOffer,
+        productId: variant.variantId,
+        price: stablePrice(seedOffer.price, variant.multiplier),
+        storeKey,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        cityName: getCityName(seedOffer.countryCode, seedOffer.cityId),
+        countryName: getCountryName(seedOffer.countryCode),
+        countryFlag: getCountryFlag(seedOffer.countryCode),
+      };
 
-    const offer: CatalogOffer = {
-      ...seedOffer,
-      productId: variant.variantId,
-      price: stablePrice(seedOffer.price, variant.multiplier),
-      storeKey,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      cityName: getCityName(seedOffer.countryCode, seedOffer.cityId),
-      countryName: getCountryName(seedOffer.countryCode),
-      countryFlag: getCountryFlag(seedOffer.countryCode),
-    };
-
-    variantOffers.push(offer);
+      variantOffers.push(offer);
+    });
   });
-});
 
-const validOfferProductIds = new Set(
-  variantOffers
-    .filter((offer) => {
-      if (offer.price <= 0 || !offer.store || !isValidHttpUrl(offer.url) || !offer.inStock) return false;
-      if (offer.countryCode !== 'AR' || offer.cityId !== 'cor') return true;
+  const validOfferProductIds = new Set(
+    variantOffers
+      .filter((offer) => {
+        if (offer.price <= 0 || !offer.store || !isValidHttpUrl(offer.url) || !offer.inStock) return false;
+        if (offer.countryCode !== 'AR' || offer.cityId !== 'cor') return true;
 
-      const product = variantProducts.find((item) => item.id === offer.productId);
-      return Boolean(
-        offer.isVerified
-        && offer.storeAddress
-        && offer.storeSourceUrl
-        && product?.officialBrand
-        && product.officialProductUrl === offer.url
-        && product.officialImageUrl
-        && product.priceSourceUrl === offer.url
-        && product.priceCheckedAt
-        && product.country === 'Argentina'
-        && product.city === 'Córdoba'
-        && isValidImageUrl(product.officialImageUrl)
-      );
-    })
-    .map((offer) => offer.productId)
+        const product = variantProducts.find((item) => item.id === offer.productId);
+        return Boolean(
+          offer.isVerified
+          && offer.storeAddress
+          && offer.storeSourceUrl
+          && product?.officialBrand
+          && product.officialProductUrl === offer.url
+          && product.officialImageUrl
+          && product.priceSourceUrl === offer.url
+          && product.priceCheckedAt
+          && product.country === 'Argentina'
+          && product.city === 'Córdoba'
+          && isValidImageUrl(product.officialImageUrl)
+        );
+      })
+      .map((offer) => offer.productId)
+  );
+
+  const nextProducts = variantProducts.filter(
+    (product) => isValidImageUrl(product.images[0]) && validOfferProductIds.has(product.id)
+  );
+
+  const nextOffers = variantOffers.filter(
+    (offer) =>
+      offer.price > 0
+      && Boolean(offer.store)
+      && isValidHttpUrl(offer.url)
+      && offer.inStock
+      && (offer.countryCode !== 'AR' || offer.cityId !== 'cor' || offer.isVerified === true)
+      && nextProducts.some((product) => product.id === offer.productId)
+  );
+
+  const nextSearchIndex = new Map<string, string>();
+  nextProducts.forEach((product) => {
+    const relatedOffers = nextOffers.filter((offer) => offer.productId === product.id);
+    const locationTerms = relatedOffers
+      .map((offer) => `${offer.store} ${offer.cityName} ${offer.countryName} ${offer.countryCode} ${offer.cityId}`)
+      .join(' ');
+
+    const categoryLabel = categories.find((item) => item.id === product.category)?.label || product.category;
+
+    nextSearchIndex.set(
+      product.id,
+      `${product.name} ${product.brand} ${product.category} ${categoryLabel} ${product.description} ${locationTerms}`
+        .toLowerCase()
+    );
+  });
+
+  return {
+    products: nextProducts,
+    offers: nextOffers,
+    productSet: new Set(nextProducts.map((product) => product.id)),
+    searchIndex: nextSearchIndex,
+  };
+}
+
+const initialCatalog = buildCatalog(
+  [...seedProducts, ...verifiedCordobaProducts],
+  [...seedOffers, ...verifiedCordobaOffers]
 );
 
-export const catalogProducts: CatalogProduct[] = variantProducts.filter(
-  (product) => isValidImageUrl(product.images[0]) && validOfferProductIds.has(product.id)
-);
+export let catalogProducts: CatalogProduct[] = initialCatalog.products;
+export let catalogOffers: CatalogOffer[] = initialCatalog.offers;
+let catalogProductSet = initialCatalog.productSet;
+let productSearchIndex = initialCatalog.searchIndex;
+let catalogRevision = 0;
 
-export const catalogOffers: CatalogOffer[] = variantOffers.filter(
-  (offer) =>
-    offer.price > 0
-    && Boolean(offer.store)
-    && isValidHttpUrl(offer.url)
-    && offer.inStock
-    && (offer.countryCode !== 'AR' || offer.cityId !== 'cor' || offer.isVerified === true)
-    && catalogProducts.some((product) => product.id === offer.productId)
-);
+/** Reemplaza el catálogo en memoria con datos remotos (Firestore). */
+export function hydrateCatalog(sourceProducts: Product[], sourceOffers: StoreOffer[]): number {
+  const next = buildCatalog(sourceProducts, sourceOffers);
+  catalogProducts = next.products;
+  catalogOffers = next.offers;
+  catalogProductSet = next.productSet;
+  productSearchIndex = next.searchIndex;
+  catalogRevision += 1;
+  return catalogRevision;
+}
 
-const catalogProductSet = new Set(catalogProducts.map((product) => product.id));
+export function getCatalogRevision() {
+  return catalogRevision;
+}
 
 export function getCatalogProductsForLocation(countryCode: string, cityId: string, category?: Category): CatalogProduct[] {
   const locationIds = new Set(
@@ -341,23 +386,6 @@ export function getCatalogStats() {
     cities: cityCount,
   };
 }
-
-const productSearchIndex = new Map<string, string>();
-
-catalogProducts.forEach((product) => {
-  const relatedOffers = catalogOffers.filter((offer) => offer.productId === product.id);
-  const locationTerms = relatedOffers
-    .map((offer) => `${offer.store} ${offer.cityName} ${offer.countryName} ${offer.countryCode} ${offer.cityId}`)
-    .join(' ');
-
-  const categoryLabel = categories.find((item) => item.id === product.category)?.label || product.category;
-
-  productSearchIndex.set(
-    product.id,
-    `${product.name} ${product.brand} ${product.category} ${categoryLabel} ${product.description} ${locationTerms}`
-      .toLowerCase()
-  );
-});
 
 export function matchesCatalogQuery(productId: string, query: string): boolean {
   const normalized = query.trim().toLowerCase();

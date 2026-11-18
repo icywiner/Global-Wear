@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /products/{allPaths=**} {
+      allow read: if true;
+      // Abrí escritura para sync/migración; luego restringí a auth admin.
+      allow write: if true;
+    }
+  }
+}
